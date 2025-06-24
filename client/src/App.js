@@ -1,23 +1,14 @@
-import logo from './logo.svg';
+// client/src/App.js
+import React from 'react';
 import './App.css';
+import AuthPage from './AuthPage'; // Import the AuthPage component
 
 function App() {
+  // For now, we'll just render the AuthPage directly.
+  // Later, we'll add logic to show different components based on authentication state.
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <AuthPage />
     </div>
   );
 }
