@@ -4,8 +4,8 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #282c34;
-  color: white;
+  background-color: #282c34; /* Dark background */
+  color: white; /* White text */
   padding: 20px;
   box-sizing: border-box; /* Include padding in element's total width and height */
 }
@@ -25,6 +25,45 @@
   color: #61dafb; /* React blue */
 }
 
+.form-group {
+  margin-bottom: 15px;
+  text-align: left; /* Align labels to the left */
+}
+
+.form-group label {
+  display: block; /* Make label take full width */
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #bbbbbb; /* Lighter grey for labels */
+}
+
+.form-group input[type="email"],
+.form-group input[type="password"] {
+  width: calc(100% - 20px); /* Account for padding */
+  padding: 10px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background-color: #444; /* Darker input background */
+  color: white;
+  font-size: 16px;
+}
+
+.form-group input::placeholder {
+  color: #888;
+}
+
+.error-message {
+  color: #ff6b6b; /* Red color for errors */
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.success-message { /* NEW STYLE */
+    color: #4CAF50; /* Green color for success */
+    margin-top: 10px;
+    font-size: 14px;
+}
+
 .auth-card button {
   background-color: #61dafb;
   color: #282c34;
@@ -35,8 +74,22 @@
   font-size: 16px;
   margin-top: 15px;
   transition: background-color 0.3s ease;
+  width: auto; /* Allow button to size based on content */
+  min-width: 150px; /* Give it a minimum width */
+  margin-left: auto; /* Center if it's display block */
+  margin-right: auto; /* Center if it's display block */
+  display: block; /* Make it a block element to control margins easily */
+}
+
+.auth-card button[type="submit"] {
+    margin-top: 20px; /* More space above submit button */
 }
 
 .auth-card button:hover {
   background-color: #4fa3d1;
+}
+
+.auth-card button:disabled {
+  background-color: #888;
+  cursor: not-allowed;
 }

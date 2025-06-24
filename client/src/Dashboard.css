@@ -1,0 +1,98 @@
+/* client/src/Dashboard.css */
+.dashboard-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #282c34;
+  color: white;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.dashboard-card {
+  background-color: #3a3f47;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  width: 100%;
+  max-width: 600px;
+}
+
+.dashboard-card h2 {
+  margin-bottom: 20px;
+  color: #61dafb;
+}
+
+.dashboard-card p {
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.email-verification-warning { /* NEW STYLE */
+  background-color: #ffe082; /* Light orange background */
+  color: #333; /* Darker text for contrast */
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  border: 1px solid #ffca28; /* Darker orange border */
+}
+
+.email-verification-warning p {
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.email-verification-warning .note {
+    font-size: 0.9em;
+    color: #555;
+    margin-top: 10px;
+}
+
+.email-verification-warning button { /* Style for resend button */
+  background-color: #ff9800; /* Orange color */
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.email-verification-warning button:hover {
+  background-color: #fb8c00;
+}
+
+.email-verification-warning button:disabled {
+  background-color: #bdbdbd;
+  cursor: not-allowed;
+}
+
+/* Reusing .error-message and .success-message for consistency */
+.email-verification-warning .error-message {
+    color: #d32f2f; /* Darker red for error message on light background */
+}
+
+.email-verification-warning .success-message {
+    color: #388e3c; /* Darker green for success message on light background */
+}
+
+
+.dashboard-card button {
+  background-color: #f44336; /* Red for logout */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.dashboard-card button:hover {
+  background-color: #d32f2f;
+}
