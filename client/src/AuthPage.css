@@ -1,17 +1,19 @@
 /* client/src/AuthPage.css */
+/* Existing styles from previous steps */
+
 .auth-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #282c34; /* Dark background */
-  color: white; /* White text */
+  background-color: #282c34;
+  color: white;
   padding: 20px;
-  box-sizing: border-box; /* Include padding in element's total width and height */
+  box-sizing: border-box;
 }
 
 .auth-card {
-  background-color: #3a3f47; /* Slightly lighter dark background for the card */
+  background-color: #3a3f47;
   padding: 30px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -22,28 +24,28 @@
 
 .auth-card h2 {
   margin-bottom: 20px;
-  color: #61dafb; /* React blue */
+  color: #61dafb;
 }
 
 .form-group {
   margin-bottom: 15px;
-  text-align: left; /* Align labels to the left */
+  text-align: left;
 }
 
 .form-group label {
-  display: block; /* Make label take full width */
+  display: block;
   margin-bottom: 5px;
   font-weight: bold;
-  color: #bbbbbb; /* Lighter grey for labels */
+  color: #bbbbbb;
 }
 
 .form-group input[type="email"],
 .form-group input[type="password"] {
-  width: calc(100% - 20px); /* Account for padding */
+  width: calc(100% - 20px);
   padding: 10px;
   border: 1px solid #555;
   border-radius: 4px;
-  background-color: #444; /* Darker input background */
+  background-color: #444;
   color: white;
   font-size: 16px;
 }
@@ -53,13 +55,13 @@
 }
 
 .error-message {
-  color: #ff6b6b; /* Red color for errors */
+  color: #ff6b6b;
   margin-top: 10px;
   font-size: 14px;
 }
 
-.success-message { /* NEW STYLE */
-    color: #4CAF50; /* Green color for success */
+.success-message {
+    color: #4CAF50;
     margin-top: 10px;
     font-size: 14px;
 }
@@ -74,15 +76,15 @@
   font-size: 16px;
   margin-top: 15px;
   transition: background-color 0.3s ease;
-  width: auto; /* Allow button to size based on content */
-  min-width: 150px; /* Give it a minimum width */
-  margin-left: auto; /* Center if it's display block */
-  margin-right: auto; /* Center if it's display block */
-  display: block; /* Make it a block element to control margins easily */
+  width: auto;
+  min-width: 150px;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
 }
 
 .auth-card button[type="submit"] {
-    margin-top: 20px; /* More space above submit button */
+    margin-top: 20px;
 }
 
 .auth-card button:hover {
@@ -92,4 +94,11 @@
 .auth-card button:disabled {
   background-color: #888;
   cursor: not-allowed;
+}
+
+/* NEW STYLE for the hint message when signup is disabled */
+.signup-disabled-hint {
+    font-size: 0.9em;
+    color: #bbb;
+    margin-top: 15px;
 }

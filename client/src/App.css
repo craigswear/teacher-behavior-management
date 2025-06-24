@@ -29,3 +29,13 @@ body {
   font-size: calc(10px + 2vmin);
   color: white;
 }
+/* client/src/App.css */
+/* ... (previous styles) ... */
+
+/* Add this to display the initError in App.js */
+.error-message {
+  color: #ff6b6b; /* Red color for errors */
+  margin-top: 10px;
+  font-size: 1.1em;
+  font-weight: bold;
+}
