@@ -7,8 +7,7 @@ const {getFirestore, FieldValue} = require("firebase-admin/firestore");
 
 // Firebase Functions v2 imports
 const {https} = require("firebase-functions/v2");
-// CRUCIAL CHANGE: Import the full 'logger' object, not just 'log' function
-const logger = require("firebase-functions/logger"); 
+const logger = require("firebase-functions/logger"); // Correct import for v2 logger
 
 // Firebase Functions Parameters imports
 const {defineSecret} = require("firebase-functions/params");
@@ -19,26 +18,29 @@ const adminDb = getFirestore(); // Get Admin SDK Firestore instance
 
 const sgMail = require('@sendgrid/mail');
 
-const SENDGRID_API_KEY_SECRET = defineSecret("SENDGRID_API_KEY");
-const APP_NAME_SECRET = defineSecret("APP_NAME_SECRET");
+// --- Define the secret parameters using defineSecret ---
+const SENDGRID_API_KEY_SECRET = defineSecret("SENDGRID_API_KEY"); // Name of the secret in Secret Manager
+const APP_NAME_SECRET = defineSecret("APP_NAME_SECRET"); // Name of the secret for app name
 
 /**
  * Callable Cloud Function to create a new user by an administrator.
  * Uses Firebase Functions (2nd Gen) with Parameterized Configuration.
  */
 exports.createUserByAdmin = https.onCall(
+    // CRUCIAL: Bind the secrets to the function here. This makes them available at runtime via .value()
     { secrets: [SENDGRID_API_KEY_SECRET, APP_NAME_SECRET] },
     async (request) => {
-        // Access secrets via .value()
+        // --- CRITICAL: Access secret values via .value() inside the function ---
         const sendGridApiKey = SENDGRID_API_KEY_SECRET.value();
-        const appName = APP_NAME_SECRET.value() || 'Behavior Management System';
+        const appName = APP_NAME_SECRET.value() || 'Behavior Management System'; // Access app name, with fallback
 
-        // --- CRITICAL DEBUG LOG ---
-        // Now using logger.info correctly
+        // --- NEW CRITICAL DEBUG LOG (to confirm secret retrieval) ---
+        // This log confirms if the API key is retrieved correctly from Secret Manager
         logger.info(`CF_DEBUG: SendGrid API Key retrieved by function (Param Config): ${sendGridApiKey ? sendGridApiKey.substring(0, 10) + '...' : 'MISSING'}`);
         logger.info(`CF_DEBUG: App Name retrieved by function (Param Config): ${appName || 'MISSING'}`);
-        // --- END CRITICAL DEBUG LOG ---
+        // --- END NEW CRITICAL DEBUG LOG ---
 
+        // CRUCIAL CHECK: If API key is still missing for some reason, throw an error early
         if (!sendGridApiKey) {
             logger.error("CF_DEBUG: SendGrid API Key is MISSING after secret binding. Cannot send email.");
             throw new https.HttpsError(
@@ -46,10 +48,11 @@ exports.createUserByAdmin = https.onCall(
                 'Email service not configured. Please contact administrator.'
             );
         }
-        sgMail.setApiKey(sendGridApiKey);
+        sgMail.setApiKey(sendGridApiKey); // Set SendGrid API key here, after retrieval check
 
         logger.info("CF_DEBUG: createUserByAdmin function called.", { data: request.data, auth: request.auth });
 
+        // --- Security Check 1: Caller Authentication (using request.auth from v2) ---
         if (!request.auth) {
             logger.warn("CF_DEBUG: Caller is NOT authenticated via request.auth (v2).");
             throw new https.HttpsError(
@@ -58,10 +61,11 @@ exports.createUserByAdmin = https.onCall(
             );
         }
 
-        const callerUid = request.auth.uid;
-
+        const callerUid = request.auth.uid; // Get UID from the verified authentication context
+        
         let callerRole;
         try {
+            // Retrieve caller's role from Firestore to enforce superAdmin permission
             const callerDoc = await adminDb.collection('users').doc(callerUid).get();
             if (!callerDoc.exists || callerDoc.data().role !== 'superAdmin') {
                 logger.warn(`CF_DEBUG: Permission denied for UID ${callerUid} (Role: ${callerDoc.data()?.role || 'none'}). Not a superAdmin.`);
@@ -82,7 +86,8 @@ exports.createUserByAdmin = https.onCall(
             );
         }
 
-        const { idToken, email, role, schoolId } = request.data; 
+        // --- Input Validation ---
+        const { idToken, email, role, schoolId } = request.data; // Destructure payload from request.data
 
         if (!email || !role || !schoolId) {
             logger.warn("CF_DEBUG: Invalid arguments.", { email, role, schoolId });
@@ -99,7 +104,7 @@ exports.createUserByAdmin = https.onCall(
                 'Provided email is not valid.'
             );
         }
-
+        
         const allowedRoles = ['teacher', 'schoolAdmin'];
         if (!allowedRoles.includes(role)) {
             logger.warn(`CF_DEBUG: Invalid role provided: ${role}`);
@@ -125,13 +130,13 @@ exports.createUserByAdmin = https.onCall(
                 role: role,
                 schoolId: schoolId,
                 createdAt: FieldValue.serverTimestamp(),
-                createdBy: callerUid,
+                createdBy: callerUid, // Store UID of the creating admin
             });
             logger.info(`CF_DEBUG: Successfully created user document in Firestore.`);
 
             const msg = {
                 to: email,
-                from: 'samsedusolutionsllc@gmail.com',
+                from: 'samsedusolutionsllc@gmail.com', // Your SendGrid verified sender email
                 subject: `Welcome to ${appName}! Set Your Password`,
                 html: `
                     <p>Welcome to the ${appName}!</p>

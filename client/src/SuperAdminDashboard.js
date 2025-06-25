@@ -28,7 +28,7 @@ function SuperAdminDashboard() {
   const [addUserError, setAddUserError] = useState(null);
   const [addUserSuccess, setAddUserSuccess] = useState(null);
 
-  // State for displaying existing users (simple list for now)
+  // State for displaying existing users
   const [users, setUsers] = useState([]);
   const [fetchUsersLoading, setFetchUsersLoading] = useState(true);
   const [fetchUsersError, setFetchUsersError] = useState(null);
@@ -43,11 +43,12 @@ function SuperAdminDashboard() {
     setFetchSchoolsError(null);
     try {
       const schoolsCollectionRef = collection(db, 'schools');
-      const q = query(schoolsCollectionRef, orderBy('name', 'asc'));
+      const q = query(schoolsCollectionRef, orderBy('name', 'asc')); // Order by school name
       const querySnapshot = await getDocs(q);
       const schoolsList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setSchools(schoolsList);
       console.log("SuperAdminDashboard: Fetched schools:", schoolsList);
+      // Set the default school for new users if schools exist
       if (schoolsList.length > 0) {
         setNewUserSchoolId(schoolsList[0].id);
       }
@@ -65,10 +66,11 @@ function SuperAdminDashboard() {
     setFetchUsersError(null);
     try {
       const usersCollectionRef = collection(db, 'users');
-      const q = query(usersCollectionRef, orderBy('email', 'asc'));
+      const q = query(usersCollectionRef, orderBy('email', 'asc')); // Order by email
       const querySnapshot = await getDocs(q);
       const usersList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setUsers(usersList.filter(user => user.role !== 'superAdmin'));
+      // Filter out the current superAdmin from this list if desired, or display all
+      setUsers(usersList.filter(user => user.role !== 'superAdmin')); // Show all users except the superAdmin
       console.log("SuperAdminDashboard: Fetched users:", usersList);
     } catch (error) {
       console.error("SuperAdminDashboard: Error fetching users:", error.message);
@@ -118,8 +120,8 @@ function SuperAdminDashboard() {
       setAddSchoolSuccess("School added successfully!");
       setNewSchoolName('');
       setNewSchoolAddress('');
-      setNewSchoolContactEmail('');
-      fetchSchools();
+      setNewSchoolContactEmail(''); // FIX: Corrected state setter for school contact email
+      fetchSchools(); // Re-fetch schools to update the list and default selection
     } catch (error) {
       console.error("SuperAdminDashboard: Error adding school:", error.message);
       setAddSchoolError("Failed to add school: " + error.message);
@@ -247,6 +249,7 @@ function SuperAdminDashboard() {
                 {schools.map(school => (
                   <li key={school.id}>
                     <strong>{school.name}</strong> - <span>{school.contactEmail}</span> <br/> <span>({school.address})</span>
+                    {/* Add edit/delete school buttons here later */}
                   </li>
                 ))}
               </ul>
