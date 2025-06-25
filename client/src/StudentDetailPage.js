@@ -3,9 +3,9 @@
 // - New component for displaying a single student's details.
 // - Uses useParams to get the student ID from the URL.
 // - Fetches student data from Firestore based on the ID.
-// - Includes a basic structure for a point sheet UI (RISE categories, periods).
+// - Includes the full UI for a daily point sheet (RISE categories, periods).
 // - Handles "Student Absent" toggle and real-time point calculations.
-// - Prepares for point sheet submission to a Cloud Function.
+// - Prepares for point sheet submission to a Cloud Function (processDailyPointSheet).
 // - Provides navigation back to the teacher dashboard and logout functionality.
 
 import React, { useState, useEffect } from 'react';
@@ -56,7 +56,7 @@ function StudentDetailPage() {
 
   // --- Helper Functions for Point Sheet Logic ---
 
-  // Initializes the point sheet with default "Met Expectations" scores
+  // Initializes the point sheet with default values (Met Expectations)
   const initializePointSheet = () => {
     const initialData = Array.from({ length: NUM_PERIODS }, (_, periodIndex) => ({
       period: periodIndex + 1,
@@ -67,7 +67,7 @@ function StudentDetailPage() {
       notes: '' // Empty notes field
     }));
     setPointSheetData(initialData);
-    calculateDailyPoints(initialData, false); // Calculate initial points based on defaults
+    // Initial calculation is done separately when student data loads, no need to do it here
   };
 
   // Calculates total earned points, total possible points, and daily percentage
@@ -143,6 +143,7 @@ function StudentDetailPage() {
 
 
   // --- Function to fetch student details (existing from previous step) ---
+  // This useEffect runs when the component mounts or dependencies change.
   useEffect(() => {
     const fetchStudentDetails = async () => {
       setFetchStudentLoading(true);
@@ -188,20 +189,20 @@ function StudentDetailPage() {
           }
           setStudentData(student); // Set student data if all checks pass
           initializePointSheet(); // Initialize point sheet data when student data loads
-          // Initial calculation is done within initializePointSheet
+          // calculateDailyPoints will be triggered by initializePointSheet's call
         } else {
-          setFetchStudentError("Student not found."); 
+          setFetchStudentError("Student not found."); // Student ID in URL but document doesn't exist
         }
       } catch (error) {
         console.error("StudentDetailPage: Error fetching student details:", error.message);
         setFetchStudentError("Failed to load student data: " + error.message);
       } finally {
-        setFetchStudentLoading(false);
+        setFetchStudentLoading(false); // End loading, regardless of success/failure
       }
     };
 
     fetchStudentDetails();
-  }, [studentId, userUid, db, navigate]);
+  }, [studentId, userUid, db, navigate]); // Dependencies: re-run if these values change
 
 
   const handleLogout = async () => {
@@ -221,40 +222,43 @@ function StudentDetailPage() {
 
 
   // --- Handle Point Sheet Submission ---
+  // This function prepares and sends the daily point sheet data to a Cloud Function
   const handleSubmitPointSheet = async (e) => {
-    e.preventDefault();
-    setSubmitLoading(true);
-    setSubmitError(null);
-    setSubmitSuccess(null);
+    e.preventDefault(); // Prevent default form submission to handle via JavaScript
+    setSubmitLoading(true); // Activate loading state for the button
+    setSubmitError(null);   // Clear previous errors
+    setSubmitSuccess(null); // Clear previous success messages
 
+    // Basic validation: Ensure student data is loaded before submission
     if (!studentData || !studentData.id) {
       setSubmitError("Student data not loaded. Cannot submit.");
       setSubmitLoading(false);
       return;
     }
 
-    // Prepare data for Cloud Function
+    // Prepare the report data object to be sent to the Cloud Function
     const reportData = {
       studentId: studentData.id,
       schoolId: studentData.schoolId,
-      date: new Date(), // Current date of report
-      teacherUid: userUid, // UID of teacher submitting
-      teacherEmail: userEmail, // Email of teacher submitting
+      date: new Date(), // Current date of report submission
+      teacherUid: userUid, // UID of the teacher submitting the report
+      teacherEmail: userEmail, // Email of the teacher submitting
       periodScores: pointSheetData, // The detailed scores for each period
       isAbsent: isAbsent, // Was student absent today?
-      totalEarnedPoints: dailyTotalPoints,
-      totalPossiblePoints: dailyPossiblePoints,
-      dailyPercentage: dailyPercentage,
+      totalEarnedPoints: dailyTotalPoints, // Calculated total points earned
+      totalPossiblePoints: dailyPossiblePoints, // Calculated total possible points
+      dailyPercentage: dailyPercentage, // Calculated daily percentage
       isSuccessfulDay: isDaySuccessful(dailyPercentage, studentData.currentLevel), // Calculated success based on percentage and level
       levelAtTimeOfReport: studentData.currentLevel // Student's level when this report was submitted
     };
 
     try {
-      // Call a Cloud Function to process and save the point sheet
-      const processDailyPointSheet = httpsCallable(functions, 'processDailyPointSheet'); // NEW Cloud Function (will define next)
-      // Get ID token for authentication in Cloud Function (Teacher is calling)
+      // Call the 'processDailyPointSheet' Cloud Function
+      const processDailyPointSheet = httpsCallable(functions, 'processDailyPointSheet'); 
+      // Get the current user's ID token for authentication in the Cloud Function
       const idToken = await auth.currentUser.getIdToken(true); 
 
+      // Execute the Cloud Function with the report data and ID token
       const result = await processDailyPointSheet({
         idToken: idToken,
         reportData: reportData
@@ -270,9 +274,10 @@ function StudentDetailPage() {
 
     } catch (error) {
       console.error("StudentDetailPage: Error submitting point sheet:", error);
+      // Display a user-friendly error message
       setSubmitError("Failed to submit point sheet: " + (error.message || "An unknown error occurred."));
     } finally {
-      setSubmitLoading(false);
+      setSubmitLoading(false); // Deactivate loading state
     }
   };
 
