@@ -23,78 +23,11 @@ function SchoolAdminDashboard() {
   const [fetchTeachersError, setFetchTeachersError] = useState(null);
 
   const userEmail = auth.currentUser ? auth.currentUser.email : 'Guest';
-  const userUid = auth.currentUser ? auth.currentUser.uid : null; // Get current admin's UID
+  const userUid = auth.currentUser ? auth.currentUser.uid : null; 
   const functions = getFunctions(app); // Initialize Firebase Functions with the app instance
 
 
-  // Function to fetch the current admin's school details and teachers
-  // This useEffect relies on userUid being available, which it should be after App.js processes auth.
-  useEffect(() => {
-    const fetchAdminData = async () => {
-      setFetchSchoolLoading(true);
-      setFetchSchoolError(null);
-      setFetchTeachersLoading(true);
-      setFetchTeachersError(null);
-
-      // Defensive check, though App.js should prevent this state
-      if (!auth.currentUser || !userUid) { 
-        setFetchSchoolError("User not logged in or UID missing.");
-        setFetchTeachersError("User not logged in or UID missing.");
-        setFetchSchoolLoading(false);
-        setFetchTeachersLoading(false);
-        return;
-      }
-
-      try {
-        // 1. Get the current School Admin's user document to find their schoolId
-        const adminUserDocRef = doc(db, 'users', userUid);
-        const adminUserDocSnap = await getDoc(adminUserDocRef);
-
-        if (adminUserDocSnap.exists() && adminUserDocSnap.data().role === 'schoolAdmin') {
-          const schoolId = adminUserDocSnap.data().schoolId;
-          if (schoolId) {
-            // 2. Fetch the school details using the schoolId
-            const schoolDocRef = doc(db, 'schools', schoolId);
-            const schoolDocSnap = await getDoc(schoolDocRef);
-            if (schoolDocSnap.exists()) {
-              setCurrentSchool({ id: schoolDocSnap.id, ...schoolDocSnap.data() });
-              console.log("SchoolAdminDashboard: Fetched current school:", { id: schoolDocSnap.id, ...schoolDocSnap.data() });
-
-              // 3. Fetch teachers assigned to this specific school
-              const usersCollectionRef = collection(db, 'users');
-              const qTeachers = query(
-                usersCollectionRef,
-                where('schoolId', '==', schoolId),
-                where('role', '==', 'teacher'), // Only fetch teachers
-                orderBy('email', 'asc')
-              );
-              const querySnapshotTeachers = await getDocs(qTeachers);
-              const teachersList = querySnapshotTeachers.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-              setTeachers(teachersList);
-              console.log("SchoolAdminDashboard: Fetched teachers:", teachersList);
-
-            } else {
-              setFetchSchoolError("Assigned school not found.");
-            }
-          } else {
-            setFetchSchoolError("School Administrator account has no school assigned.");
-          }
-        } else {
-          setFetchSchoolError("User is not a School Administrator or user data not found.");
-        }
-      } catch (error) {
-        console.error("SchoolAdminDashboard: Error fetching admin data:", error.message);
-        setFetchSchoolError("Failed to load school data: " + error.message);
-        setFetchTeachersError("Failed to load teachers: " + error.message);
-      } finally {
-        setFetchSchoolLoading(false);
-        setFetchTeachersLoading(false);
-      }
-    };
-
-    fetchAdminData();
-  }, [userUid]); // Re-run if userUid changes (e.g., if App.js loads it later)
-
+  // --- Helper Functions Definitions (Defined before they are used in useEffect or JSX) ---
 
   const handleLogout = async () => {
     try {
@@ -103,6 +36,66 @@ function SchoolAdminDashboard() {
     } catch (error) {
       console.error("Error logging out:", error.message);
       alert("Error logging out: " + error.message);
+    }
+  };
+
+  // Function to fetch the current admin's school details and teachers
+  // Defined here so it can be called from handleAddTeacher
+  const fetchAdminData = async () => {
+    setFetchSchoolLoading(true);
+    setFetchSchoolError(null);
+    setFetchTeachersLoading(true);
+    setFetchTeachersError(null);
+
+    if (!auth.currentUser || !userUid) { 
+      setFetchSchoolError("User not logged in or UID missing.");
+      setFetchTeachersError("User not logged in or UID missing.");
+      setFetchSchoolLoading(false);
+      setFetchTeachersLoading(false);
+      return;
+    }
+
+    try {
+      const adminUserDocRef = doc(db, 'users', userUid);
+      const adminUserDocSnap = await getDoc(adminUserDocRef);
+
+      if (adminUserDocSnap.exists() && adminUserDocSnap.data().role === 'schoolAdmin') {
+        const schoolId = adminUserDocSnap.data().schoolId;
+        if (schoolId) {
+          const schoolDocRef = doc(db, 'schools', schoolId);
+          const schoolDocSnap = await getDoc(schoolDocRef);
+          if (schoolDocSnap.exists()) {
+            setCurrentSchool({ id: schoolDocSnap.id, ...schoolDocSnap.data() });
+            console.log("SchoolAdminDashboard: Fetched current school:", { id: schoolDocSnap.id, ...schoolDocSnap.data() });
+
+            const usersCollectionRef = collection(db, 'users');
+            const qTeachers = query(
+              usersCollectionRef,
+              where('schoolId', '==', schoolId),
+              where('role', '==', 'teacher'),
+              orderBy('email', 'asc')
+            );
+            const querySnapshotTeachers = await getDocs(qTeachers);
+            const teachersList = querySnapshotTeachers.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setTeachers(teachersList);
+            console.log("SchoolAdminDashboard: Fetched teachers:", teachersList);
+
+          } else {
+            setFetchSchoolError("Assigned school not found.");
+          }
+        } else {
+          setFetchSchoolError("School Administrator account has no school assigned.");
+        }
+      } else {
+        setFetchSchoolError("User is not a School Administrator or user data not found.");
+      }
+    } catch (error) {
+      console.error("SchoolAdminDashboard: Error fetching admin data:", error.message);
+      setFetchSchoolError("Failed to load school data: " + error.message);
+      setFetchTeachersError("Failed to load teachers: " + error.message);
+    } finally {
+      setFetchSchoolLoading(false);
+      setFetchTeachersLoading(false);
     }
   };
 
@@ -124,22 +117,20 @@ function SchoolAdminDashboard() {
     }
 
     try {
-      const createUserByAdmin = httpsCallable(functions, 'createUserByAdmin'); // Reuse the Cloud Function
-      // Ensure auth.currentUser exists before trying to get token
-      const idToken = await auth.currentUser.getIdToken(true); // Get fresh token
+      const createUserByAdmin = httpsCallable(functions, 'createUserByAdmin');
+      const idToken = await auth.currentUser.getIdToken(true);
       
       const result = await createUserByAdmin({
-        idToken: idToken, // Pass token for authentication in Cloud Function
+        idToken: idToken,
         email: newTeacherEmail,
-        role: 'teacher', // Fixed role for teacher creation
-        schoolId: currentSchool.id, // Assign to the current admin's school
+        role: 'teacher',
+        schoolId: currentSchool.id,
       });
 
       console.log("SchoolAdminDashboard: Cloud Function result for adding teacher:", result.data);
 
       setAddTeacherSuccess(`Teacher ${newTeacherEmail} added successfully! Email sent to set password.`);
-      setNewTeacherEmail(''); // Clear form
-      // Re-fetch teachers to update the list after a successful add
+      setNewTeacherEmail('');
       fetchAdminData(); // Call this to refresh school data AND teachers list
     } catch (error) {
       console.error("SchoolAdminDashboard: Error adding teacher:", error.message);
@@ -148,6 +139,13 @@ function SchoolAdminDashboard() {
       setAddTeacherLoading(false);
     }
   };
+
+  // --- useEffect to run initial data fetch (calls fetchAdminData) ---
+  useEffect(() => {
+    fetchAdminData();
+  }, [userUid, db]); // Add db to dependencies as it's used in fetchAdminData
+
+  // handleAddSchool function is NOT part of SchoolAdminDashboard. It's in SuperAdminDashboard.
 
   return (
     <div className="dashboard-container">
@@ -220,7 +218,7 @@ function SchoolAdminDashboard() {
         </div>
 
         {/* Manage Students Section (Placeholder) */}
-        <div className="admin-section"> {/* NEW SECTION */}
+        <div className="admin-section">
           <h3>Manage Students</h3>
           {currentSchool ? ( // Only show if school data is loaded
             <>

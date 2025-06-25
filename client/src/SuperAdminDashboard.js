@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { auth, db, app } from './firebaseConfig'; // Import 'app' for getFunctions(app)
 import { signOut } from 'firebase/auth';
-import { collection, addDoc, getDocs, query, orderBy } from 'firebase/firestore'; // Removed setDoc, doc as they are not used directly here anymore
-import { getFunctions, httpsCallable } from 'firebase/functions'; // Import getFunctions and httpsCallable
+import { collection, addDoc, getDocs, query, orderBy } from 'firebase/firestore';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import './Dashboard.css'; // Reusing general dashboard styling
 
 function SuperAdminDashboard() {
@@ -120,7 +120,7 @@ function SuperAdminDashboard() {
       setAddSchoolSuccess("School added successfully!");
       setNewSchoolName('');
       setNewSchoolAddress('');
-      setNewSchoolContactEmail(''); // FIX: Corrected state setter for school contact email
+      setNewSchoolContactEmail('');
       fetchSchools(); // Re-fetch schools to update the list and default selection
     } catch (error) {
       console.error("SuperAdminDashboard: Error adding school:", error.message);
