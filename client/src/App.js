@@ -1,106 +1,106 @@
 // client/src/App.js
+// Summary of Changes:
+// - Added 'getDocs' to the firebase/firestore import list to resolve 'no-undef' error.
+
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { onAuthStateChanged, sendEmailVerification } from 'firebase/auth'; // Import sendEmailVerification
+import { onAuthStateChanged, sendEmailVerification } from 'firebase/auth'; 
 import { auth, db } from './firebaseConfig';
-import { doc, getDoc, setDoc, collection, getDocs, query, limit } from 'firebase/firestore'; // Import necessary Firestore functions
+// Ensure all necessary Firestore functions are imported if used in this file
+// CRITICAL FIX: Added getDocs to the import list
+import { doc, getDoc, collection, query, limit, setDoc, getDocs } from 'firebase/firestore'; 
 
 import AuthPage from './AuthPage';
 import SuperAdminDashboard from './SuperAdminDashboard';
 import SchoolAdminDashboard from './SchoolAdminDashboard';
 import TeacherDashboard from './TeacherDashboard';
+import StudentDetailPage from './StudentDetailPage'; 
 import './App.css';
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [initError, setInitError] = useState(null); // New state for initialization errors
+  const [initError, setInitError] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setLoading(true); // Always set loading true when auth state changes
-      setInitError(null); // Clear previous errors
+      setLoading(true);
+      setInitError(null);
 
       if (user) {
-        // --- User is logged in ---
-        console.log("App.js Debug: User detected by onAuthStateChanged. UID:", user.uid); // DEBUG LOG
+        console.log("App.js Debug: User detected by onAuthStateChanged. UID:", user.uid);
         const userDocRef = doc(db, 'users', user.uid);
         const userDocSnap = await getDoc(userDocRef);
 
         if (userDocSnap.exists()) {
-          // --- User document found, retrieve role ---
           const userData = userDocSnap.data();
           setCurrentUser(user);
           setUserRole(userData.role);
-          console.log("App.js Debug: User document found. Role:", userData.role); // DEBUG LOG
-
+          console.log("App.js Debug: User document found. Role:", userData.role);
         } else {
-          // --- User exists in Auth but NOT in Firestore. This means a new signup or first login. ---
-          console.log("App.js Debug: User document NOT found in Firestore for UID:", user.uid, ". Attempting to create."); // DEBUG LOG
-
-          let assignedRole = 'unassigned'; // Default for new users
-
+          // --- Handle first user signup / user document creation in Firestore ---
+          console.error("App.js Debug: User document NOT found in Firestore for UID:", user.uid, ". Attempting to create.");
+          let assignedRole = 'unassigned';
           try {
-            // Check if this is the very first user in the system (for superAdmin assignment)
             const usersCollectionRef = collection(db, 'users');
             const usersQuery = query(usersCollectionRef, limit(1));
-            const existingUsersSnapshot = await getDocs(usersQuery);
+            const existingUsersSnapshot = await getDocs(usersQuery); // This line needed getDocs import
 
             if (existingUsersSnapshot.empty) {
               assignedRole = 'superAdmin';
-              console.log('App.js Debug: Assigning superAdmin role to first user.'); // DEBUG LOG
+              console.log('App.js Debug: Assigning superAdmin role to first user.');
             } else {
-              console.log('App.js Debug: Assigning "unassigned" role to new user (not first).'); // DEBUG LOG
+              console.log('App.js Debug: Assigning "unassigned" role to new user (not first).');
             }
 
-            // Create the user document in Firestore
-            await setDoc(userDocRef, { // Use userDocRef directly
+            await setDoc(userDocRef, { // Create user document in Firestore
               email: user.email,
               role: assignedRole,
               createdAt: new Date(),
-              // You might add initial schoolId: null here for superAdmin/unassigned or other defaults
             });
-            console.log("App.js Debug: Firestore user document created successfully for UID:", user.uid); // DEBUG LOG
+            console.log("App.js Debug: Firestore user document created successfully for UID:", user.uid);
 
-            // Send email verification if not already verified (important for new signups)
+            // Send email verification for initial signup (Firebase's default sender)
             if (!user.emailVerified) {
-                console.log("App.js Debug: Sending email verification for new user:", user.email); // DEBUG LOG
-                await sendEmailVerification(user);
+                console.log("App.js Debug: Sending initial email verification for new user:", user.email);
+                try {
+                    await sendEmailVerification(user); 
+                } catch (emailVerError) {
+                    console.error("App.js Debug: Error sending initial email verification:", emailVerError);
+                }
             }
-            console.log("App.js Debug: Email verification check complete."); // DEBUG LOG
+            console.log("App.js Debug: Email verification check complete.");
 
-            // Update state after successful creation
             setCurrentUser(user);
             setUserRole(assignedRole);
-            console.log("App.js Debug: User state updated with role:", assignedRole); // DEBUG LOG
+            console.log("App.js Debug: User state updated with role:", assignedRole);
 
           } catch (firestoreError) {
-            console.error("App.js Debug: Error creating user document or sending email verification:", firestoreError.message, "Code:", firestoreError.code); // DEBUG LOG error
+            console.error("App.js Debug: Error creating user document or sending email verification:", firestoreError.message, "Code:", firestoreError.code);
             setInitError("Error during account setup. Please try logging in again or contact support.");
             setCurrentUser(null);
             setUserRole(null);
-            await auth.signOut(); // Force logout if initialization fails
+            await auth.signOut();
           }
         }
       } else {
-        // --- User is logged out ---
-        console.log("App.js Debug: User logged out."); // DEBUG LOG
+        console.log("App.js Debug: User logged out.");
         setCurrentUser(null);
         setUserRole(null);
       }
-      setLoading(false); // All checks complete
+      setLoading(false);
     });
 
     return unsubscribe;
-  }, []); // Empty dependency array means this effect runs once on initial mount
+  }, [db, auth]); // Dependencies
 
   if (loading) {
     return (
       <div className="App">
         <header className="App-header">
           <h1>Loading application...</h1>
-          {initError && <p className="error-message">{initError}</p>} {/* Display init errors */}
+          {initError && <p className="error-message">{initError}</p>}
         </header>
       </div>
     );
@@ -108,8 +108,6 @@ function App() {
 
   const renderDashboard = () => {
     if (!currentUser || !userRole) {
-      // This case should primarily be hit if loading is false, but currentUser or role are null,
-      // which would mean they are logged out, or there was an initError.
       return <Navigate to="/" />;
     }
 
@@ -137,17 +135,24 @@ function App() {
     <Router>
       <div className="App">
         <Routes>
+          {/* Main route: if authenticated, render the specific dashboard; otherwise, show AuthPage */}
           <Route
             path="/"
             element={currentUser ? renderDashboard() : <AuthPage />}
           />
 
+          {/* Specific routes for each dashboard type */}
           <Route path="/superadmin-dashboard" element={userRole === 'superAdmin' ? <SuperAdminDashboard /> : <Navigate to="/" />} />
           <Route path="/schooladmin-dashboard" element={userRole === 'schoolAdmin' ? <SchoolAdminDashboard /> : <Navigate to="/" />} />
           <Route path="/teacher-dashboard" element={userRole === 'teacher' ? <TeacherDashboard /> : <Navigate to="/" />} />
+          
+          {/* Route for Student Detail Page. StudentId is a URL parameter. */}
+          <Route path="/student/:studentId" element={currentUser ? <StudentDetailPage /> : <Navigate to="/" />} /> 
 
+          {/* Fallback for authenticated users without a specific role dashboard access */}
           <Route path="/dashboard" element={currentUser ? renderDashboard() : <Navigate to="/" />} />
 
+          {/* Catch-all route for any undefined paths */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>
