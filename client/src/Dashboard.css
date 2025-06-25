@@ -1,28 +1,32 @@
 /* client/src/Dashboard.css */
+/* This file contains shared styles for various dashboards and admin sections */
+
 .dashboard-container {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start; /* Align content to the top */
   min-height: 100vh;
-  background-color: #282c34;
-  color: white;
+  background-color: #282c34; /* Dark background */
+  color: white; /* White text */
   padding: 20px;
   box-sizing: border-box;
 }
 
 .dashboard-card {
-  background-color: #3a3f47;
+  background-color: #3a3f47; /* Slightly lighter dark background for the card */
   padding: 30px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   text-align: center;
   width: 100%;
-  max-width: 600px;
+  max-width: 800px; /* Increased max-width for admin dashboards to accommodate more content */
+  margin-top: 20px; /* Add some top margin */
+  margin-bottom: 20px; /* Add some bottom margin */
 }
 
 .dashboard-card h2 {
   margin-bottom: 20px;
-  color: #61dafb;
+  color: #61dafb; /* React blue */
 }
 
 .dashboard-card p {
@@ -30,7 +34,8 @@
   line-height: 1.5;
 }
 
-.email-verification-warning { /* NEW STYLE */
+/* Email verification warning - existing styles (from Dashboard.js) */
+.email-verification-warning {
   background-color: #ffe082; /* Light orange background */
   color: #333; /* Darker text for contrast */
   padding: 15px;
@@ -50,7 +55,7 @@
     margin-top: 10px;
 }
 
-.email-verification-warning button { /* Style for resend button */
+.email-verification-warning button {
   background-color: #ff9800; /* Orange color */
   color: white;
   border: none;
@@ -71,17 +76,23 @@
   cursor: not-allowed;
 }
 
-/* Reusing .error-message and .success-message for consistency */
-.email-verification-warning .error-message {
-    color: #d32f2f; /* Darker red for error message on light background */
+/* General error and success messages (used across multiple components) */
+.error-message {
+  color: #ff6b6b; /* Red color for errors */
+  margin-top: 10px;
+  font-size: 1em;
+  font-weight: bold;
 }
 
-.email-verification-warning .success-message {
-    color: #388e3c; /* Darker green for success message on light background */
+.success-message {
+  color: #4CAF50; /* Green color for success */
+  margin-top: 10px;
+  font-size: 1em;
+  font-weight: bold;
 }
 
-
-.dashboard-card button {
+/* General button styling for main logout (overridden by admin-section buttons) */
+.dashboard-card > button { /* Targets the direct child button (Log Out) */
   background-color: #f44336; /* Red for logout */
   color: white;
   border: none;
@@ -91,8 +102,148 @@
   font-size: 16px;
   margin-top: 20px;
   transition: background-color 0.3s ease;
+  width: auto;
+  min-width: 150px;
+  display: block; /* Make it a block element */
+  margin-left: auto; /* Center it */
+  margin-right: auto; /* Center it */
 }
 
-.dashboard-card button:hover {
+.dashboard-card > button:hover {
   background-color: #d32f2f;
+}
+
+/* ADMIN DASHBOARD SPECIFIC STYLES (for sections within SuperAdminDashboard) */
+.admin-section {
+  background-color: #30343a; /* Slightly darker than card, for sectioning */
+  padding: 20px;
+  border-radius: 6px;
+  margin-top: 25px;
+  text-align: left; /* Align content inside sections to left */
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); /* Inner shadow for depth */
+}
+
+.admin-section h3 {
+  color: #61dafb;
+  margin-top: 0;
+  margin-bottom: 20px;
+  text-align: center; /* Center section titles */
+  font-size: 1.6em;
+}
+
+.admin-section h4 { /* For sub-headings like "Existing Schools" */
+    color: #a0a0a0; /* Lighter grey for sub-heading */
+    margin-top: 25px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 1.2em;
+    border-bottom: 1px solid #555;
+    padding-bottom: 5px;
+}
+
+
+.admin-form .form-group {
+  margin-bottom: 15px;
+}
+
+.admin-form label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #bbbbbb;
+}
+
+.admin-form input[type="text"],
+.admin-form input[type="email"],
+.admin-form input[type="password"],
+.admin-form select { /* Include select for new user roles */
+  width: calc(100% - 20px); /* Account for padding */
+  padding: 10px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background-color: #444;
+  color: white;
+  font-size: 16px;
+  box-sizing: border-box; /* Ensures padding/border are included in width */
+  appearance: none; /* Remove default select arrow */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23bbb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); /* Custom arrow */
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 20px;
+}
+
+.admin-form input[type="text"]:focus,
+.admin-form input[type="email"]:focus,
+.admin-form input[type="password"]:focus,
+.admin-form select:focus {
+  outline: none;
+  border-color: #61dafb;
+  box-shadow: 0 0 0 2px rgba(97, 218, 251, 0.5);
+}
+
+.admin-form button[type="submit"] {
+  background-color: #4CAF50; /* Green for submit button */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 20px;
+  width: 100%; /* Make submit button full width within its section */
+  min-width: unset; /* Override previous min-width */
+  transition: background-color 0.3s ease;
+}
+
+.admin-form button[type="submit"]:hover {
+  background-color: #45a049;
+}
+
+.admin-form button[type="submit"]:disabled {
+  background-color: #888;
+  cursor: not-allowed;
+}
+
+.schools-list, .users-list { /* Shared styling for lists */
+  margin-top: 30px;
+  border-top: 1px solid #555; /* Separator line */
+  padding-top: 20px;
+}
+
+.schools-list h4, .users-list h4 {
+  color: #61dafb; /* Changed to react blue for lists */
+  margin-bottom: 15px;
+  text-align: center;
+  font-size: 1.2em;
+}
+
+.schools-list ul, .users-list ul {
+  list-style: none; /* Remove default list bullets */
+  padding: 0;
+}
+
+.schools-list li, .users-list li {
+  background-color: #444b55; /* Slightly darker background for list items */
+  padding: 12px 15px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  display: flex; /* Use flexbox for layout within list items */
+  flex-direction: column; /* Stack vertically */
+  align-items: flex-start; /* Align text to the left */
+  font-size: 0.95em;
+  line-height: 1.4;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1); /* Subtle shadow for items */
+}
+
+.schools-list li strong, .users-list li strong {
+    color: #ddd; /* Slightly lighter color for names/emails */
+    font-size: 1.1em;
+    margin-bottom: 5px;
+}
+
+.schools-list li span, .users-list li span { /* For address/email/role */
+    color: #bbb;
+    font-size: 0.9em;
 }

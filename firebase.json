@@ -1,26 +1,16 @@
 {
   "firestore": {
-    "database": "(default)",
-    "location": "nam5",
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
-  "functions": [
-    {
-      "source": "functions",
-      "codebase": "default",
-      "ignore": [
-        "node_modules",
-        ".git",
-        "firebase-debug.log",
-        "firebase-debug.*.log",
-        "*.local"
-      ],
-      "predeploy": [
-        "npm --prefix \"$RESOURCE_DIR\" run lint"
-      ]
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs18",
+    "environmentVariables": {
+      "SENDGRID_API_KEY": "projects/teacher-behavior-mgmt/secrets/sendgrid_api_key",
+      "APP_NAME": "SAMS Edu-Behavior Management App"
     }
-  ],
+  },
   "hosting": {
     "public": "client/build",
     "ignore": [
