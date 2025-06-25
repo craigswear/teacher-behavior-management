@@ -1,29 +1,30 @@
 // client/src/TeacherDashboard.js
 // Summary of Changes:
-// - Fetches and displays the teacher's assigned school details.
-// - Fetches and displays a list of students in that school.
-// - Includes error/loading states for data fetching.
+// - Imports useNavigate hook for routing.
+// - Makes each student list item clickable to navigate to /student/:studentId.
 
 import React, { useState, useEffect } from 'react';
 import { auth, db, app } from './firebaseConfig';
 import { signOut } from 'firebase/auth';
-import { doc, getDoc, collection, getDocs, query, where, orderBy } from 'firebase/firestore'; // Import Firestore functions
-import { getFunctions } from 'firebase/functions'; // getFunctions is here for consistency, though not used yet
-import './Dashboard.css'; // Reusing general dashboard styling
+import { doc, getDoc, collection, getDocs, query, where, orderBy } from 'firebase/firestore';
+import { getFunctions } from 'firebase/functions';
+import { useNavigate } from 'react-router-dom'; // NEW: Import useNavigate
+import './Dashboard.css';
 
 function TeacherDashboard() {
   const [currentSchool, setCurrentSchool] = useState(null);
   const [fetchSchoolLoading, setFetchSchoolLoading] = useState(true);
   const [fetchSchoolError, setFetchSchoolError] = useState(null);
 
-  // State for displaying students in this school
   const [students, setStudents] = useState([]);
   const [fetchStudentsLoading, setFetchStudentsLoading] = useState(true);
   const [fetchStudentsError, setFetchStudentsError] = useState(null);
 
   const userEmail = auth.currentUser ? auth.currentUser.email : 'Guest';
-  const userUid = auth.currentUser ? auth.currentUser.uid : null; // Get current teacher's UID
-  const functions = getFunctions(app); // Initialize Firebase Functions with the app instance (not used yet, but good to have)
+  const userUid = auth.currentUser ? auth.currentUser.uid : null;
+  const functions = getFunctions(app);
+
+  const navigate = useNavigate(); // NEW: Initialize useNavigate hook
 
 
   // Function to fetch the current teacher's assigned school data and students
@@ -31,10 +32,10 @@ function TeacherDashboard() {
     const fetchTeacherData = async () => {
       setFetchSchoolLoading(true);
       setFetchSchoolError(null);
-      setFetchStudentsLoading(true); // Set loading for students
-      setFetchStudentsError(null);  // Clear errors for students
+      setFetchStudentsLoading(true);
+      setFetchStudentsError(null);
 
-      if (!auth.currentUser || !userUid) { // Defensive check
+      if (!auth.currentUser || !userUid) {
         setFetchSchoolError("User not logged in or UID missing.");
         setFetchStudentsError("User not logged in or UID missing.");
         setFetchSchoolLoading(false);
@@ -43,21 +44,18 @@ function TeacherDashboard() {
       }
 
       try {
-        // 1. Get the current Teacher's user document to find their schoolId
         const teacherUserDocRef = doc(db, 'users', userUid);
         const teacherUserDocSnap = await getDoc(teacherUserDocRef);
 
         if (teacherUserDocSnap.exists() && teacherUserDocSnap.data().role === 'teacher') {
           const schoolId = teacherUserDocSnap.data().schoolId;
           if (schoolId) {
-            // 2. Fetch the school details using the schoolId
             const schoolDocRef = doc(db, 'schools', schoolId);
             const schoolDocSnap = await getDoc(schoolDocRef);
             if (schoolDocSnap.exists()) {
               setCurrentSchool({ id: schoolDocSnap.id, ...schoolDocSnap.data() });
               console.log("TeacherDashboard: Fetched current school:", { id: schoolDocSnap.id, ...schoolDocSnap.data() });
 
-              // 3. Fetch students assigned to this specific school
               const studentsCollectionRef = collection(db, 'students');
               const qStudents = query(
                 studentsCollectionRef,
@@ -88,18 +86,25 @@ function TeacherDashboard() {
       }
     };
 
-    fetchTeacherData(); // Call the async function
-  }, [userUid, db]); // Re-run if userUid or db changes
+    fetchTeacherData();
+  }, [userUid, db]);
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
       console.log("Teacher logged out.");
+      navigate('/'); // Navigate to login page after logout
     } catch (error) {
       console.error("Error logging out:", error.message);
       alert("Error logging out: " + error.message);
     }
   };
+
+  // NEW: Handle click on a student to go to their detail page
+  const handleStudentClick = (studentId) => {
+    navigate(`/student/${studentId}`);
+  };
+
 
   return (
     <div className="dashboard-container">
@@ -107,8 +112,8 @@ function TeacherDashboard() {
         <h2>Teacher Dashboard, {userEmail}!</h2>
         <p>View your classes, track student progress, and input daily point sheets.</p>
 
-        {/* Your School Details Section (similar to School Admin) */}
-        <div className="admin-section"> {/* Reusing admin-section styling for consistency */}
+        {/* Your School Details Section */}
+        <div className="admin-section">
           <h3>Your School Details</h3>
           {fetchSchoolLoading ? (
             <p>Loading school details...</p>
@@ -126,10 +131,10 @@ function TeacherDashboard() {
         </div>
 
         {/* Students in Your School Section */}
-        <div className="admin-section"> {/* Reusing admin-section styling */}
+        <div className="admin-section">
           <h3>Students in Your School:</h3>
-          {currentSchool ? ( /* Only show if school data is loaded */
-            <div className="users-list"> {/* Reusing users-list styling for consistent look */}
+          {currentSchool ? (
+            <div className="users-list">
               {fetchStudentsLoading ? (
                 <p>Loading students...</p>
               ) : fetchStudentsError ? (
@@ -139,9 +144,9 @@ function TeacherDashboard() {
               ) : (
                 <ul>
                   {students.map(student => (
-                    <li key={student.id}>
+                    // NEW: Make student list item clickable
+                    <li key={student.id} onClick={() => handleStudentClick(student.id)} className="student-list-item">
                       <strong>{student.name}</strong> - <span>ID: {student.studentId}</span> - <span>Level {student.currentLevel}</span>
-                      {/* Future: Button to click student and view point sheet */}
                     </li>
                   ))}
                 </ul>

@@ -247,3 +247,11 @@
     color: #bbb;
     font-size: 0.9em;
 }
+.student-list-item {
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.student-list-item:hover {
+    background-color: #555c66; /* Slightly lighter on hover */
+}

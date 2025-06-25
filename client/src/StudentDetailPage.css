@@ -1,0 +1,77 @@
+/* client/src/StudentDetailPage.css */
+
+.student-detail-card {
+    max-width: 900px; /* Wider card to accommodate more content */
+    text-align: left; /* Align content to the left within the card */
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.student-info-section {
+    background-color: #30343a; /* Darker background for sections */
+    padding: 20px;
+    border-radius: 6px;
+    margin-top: 25px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); /* Inner shadow for depth */
+    color: #ddd; /* Light gray text */
+}
+
+.student-info-section h3 {
+    color: #61dafb; /* React blue for headings */
+    margin-top: 0;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 1.5em;
+}
+
+.student-info-section p {
+    margin-bottom: 8px;
+}
+
+.student-info-section strong {
+    color: #fff; /* White for labels */
+}
+
+.point-sheet-section {
+    background-color: #30343a;
+    padding: 20px;
+    border-radius: 6px;
+    margin-top: 25px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    color: #ddd;
+}
+
+.point-sheet-section h3 {
+    color: #61dafb;
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 1.5em;
+}
+
+.point-sheet-section ul {
+    list-style: disc;
+    margin-left: 20px;
+    padding-left: 0;
+    color: #bbb;
+}
+
+.point-sheet-section li {
+    margin-bottom: 5px;
+}
+
+.back-button {
+    background-color: #555; /* Dark gray for back button */
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-bottom: 20px;
+    transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+    background-color: #777; /* Lighter gray on hover */
+}
