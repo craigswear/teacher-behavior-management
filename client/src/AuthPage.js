@@ -33,7 +33,7 @@ function AuthPage() {
       } catch (err) {
         console.error("AuthPage Debug: Error checking for super admin on load:", err);
         setAllowSignUp(false); // Default to safety
-        setError("Error initializing page. Please try again or contact support.");
+        // Removed setError("Error initializing page. Please try again or contact support.");
       }
     };
     checkSuperAdminExists();
@@ -128,6 +128,10 @@ function AuthPage() {
         {!allowSignUp && isLogin && (
             <p className="signup-disabled-hint">Sign up is currently disabled. Please log in or contact an administrator.</p>
         )}
+      </div>
+      {/* Copyright information added here */}
+      <div className="copyright-footer">
+        © 2025 SAMS Edu Solutions LLC. All Rights Reserved.
       </div>
     </div>
   );

@@ -1,104 +1,142 @@
 /* client/src/AuthPage.css */
-/* Existing styles from previous steps */
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  /* Ensure html and body match the container background */
+  background-color: #1A202C; 
+  overflow: hidden; /* Prevent scrolling if content slightly overflows */
+}
 
 .auth-container {
   display: flex;
+  flex-direction: column; /* Allows content and footer to stack vertically */
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #282c34;
-  color: white;
+  width: 100vw; /* Ensure it spans the full viewport width */
+  /* Darker blue background inspired by the main site */
+  background-color: #1A202C; /* A very dark blue-gray */
+  color: #E2E8F0; /* Off-white for general text */
   padding: 20px;
   box-sizing: border-box;
+  font-family: 'Inter', sans-serif; /* A modern, clean sans-serif font */
 }
 
 .auth-card {
-  background-color: #3a3f47;
+  /* Slightly lighter dark background for the card */
+  background-color: #2D3748; /* A dark blue-gray */
   padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 12px; /* More rounded corners for a smoother look */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); /* Deeper shadow for prominence */
   text-align: center;
   width: 100%;
   max-width: 400px;
+  transition: all 0.3s ease-in-out; /* Smooth transition for any future changes */
+  margin-bottom: 30px; /* Add some space between card and footer */
 }
 
 .auth-card h2 {
-  margin-bottom: 20px;
-  color: #61dafb;
+  margin-bottom: 25px; /* Slightly more space below heading */
+  color: #E2E8F0; /* Heading color matching main text for consistency */
+  font-size: 1.8em;
+  font-weight: 700;
 }
 
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 20px; /* Increased margin for better spacing */
   text-align: left;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-  color: #bbbbbb;
+  margin-bottom: 8px; /* Slightly more space for labels */
+  font-weight: 500; /* Medium weight for labels */
+  color: #CBD5E0; /* Light gray for labels */
 }
 
 .form-group input[type="email"],
 .form-group input[type="password"] {
-  width: calc(100% - 20px);
-  padding: 10px;
-  border: 1px solid #555;
-  border-radius: 4px;
-  background-color: #444;
-  color: white;
+  width: calc(100% - 24px); /* Adjust width to accommodate padding */
+  padding: 12px; /* Increased padding for better touch targets */
+  border: 1px solid #4A5568; /* Darker border for inputs */
+  border-radius: 8px; /* More rounded input fields */
+  background-color: #4A5568; /* Background color matching the border */
+  color: #E2E8F0; /* Input text color */
   font-size: 16px;
+  outline: none; /* Remove default outline */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transition on focus */
 }
 
 .form-group input::placeholder {
-  color: #888;
+  color: #A0AEC0; /* Lighter placeholder text */
+}
+
+.form-group input:focus {
+  border-color: #4299E1; /* Vibrant blue border on focus */
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5); /* Blue glow on focus */
 }
 
 .error-message {
-  color: #ff6b6b;
+  color: #FC8181; /* Soft red for errors */
   margin-top: 10px;
   font-size: 14px;
 }
 
 .success-message {
-    color: #4CAF50;
-    margin-top: 10px;
-    font-size: 14px;
+  color: #68D391; /* Soft green for success */
+  margin-top: 10px;
+  font-size: 14px;
 }
 
 .auth-card button {
-  background-color: #61dafb;
-  color: #282c34;
+  background-color: #4299E1; /* Vibrant blue for buttons, matching the image */
+  color: #FFFFFF; /* White text on buttons */
   border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
+  padding: 12px 25px; /* More padding for a substantial button */
+  border-radius: 8px; /* Rounded button corners */
   cursor: pointer;
-  font-size: 16px;
-  margin-top: 15px;
-  transition: background-color 0.3s ease;
+  font-size: 17px;
+  font-weight: 600; /* Semi-bold text */
+  margin-top: 25px; /* Increased margin-top for separation */
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
   width: auto;
-  min-width: 150px;
+  min-width: 160px; /* Slightly wider minimum width */
   margin-left: auto;
   margin-right: auto;
   display: block;
 }
 
 .auth-card button[type="submit"] {
-    margin-top: 20px;
+  margin-top: 25px; /* Ensure submit button has consistent spacing */
 }
 
 .auth-card button:hover {
-  background-color: #4fa3d1;
+  background-color: #3182CE; /* Darker blue on hover */
+  transform: translateY(-2px); /* Slight lift effect */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow on hover */
 }
 
 .auth-card button:disabled {
-  background-color: #888;
+  background-color: #718096; /* Muted gray for disabled state */
   cursor: not-allowed;
+  transform: none; /* No lift for disabled */
+  box-shadow: none; /* No shadow for disabled */
 }
 
-/* NEW STYLE for the hint message when signup is disabled */
 .signup-disabled-hint {
-    font-size: 0.9em;
-    color: #bbb;
-    margin-top: 15px;
+  font-size: 0.85em; /* Slightly smaller font size */
+  color: #A0AEC0; /* Lighter gray for hint */
+  margin-top: 20px; /* Adjusted margin */
+}
+
+.copyright-footer {
+  color: #718096; /* A subtle gray for the copyright text */
+  font-size: 0.8em;
+  position: absolute; /* Position absolutely to the bottom */
+  bottom: 20px; /* 20px from the bottom */
+  width: 100%;
+  text-align: center;
+  padding: 10px 0;
 }
