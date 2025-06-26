@@ -2,60 +2,91 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to get a user's role and schoolId
+    // Helper function to fetch a user's role and schoolId from their 'users' document
     function getUserData(uid) {
-      // Temporarily debug what getUserData returns
-      return debug(get(/databases/$(database)/documents/users/$(uid)));
+      return get(/databases/$(database)/documents/users/$(uid));
     }
 
-    // --- Users Collection Rules (TEMPORARILY LOOSENED FOR AUTHENTICATED READ) ---
+    // --- Rules for 'users' collection ---
     match /users/{userId} {
-      // Temporarily allow any authenticated user to read ANY user document.
-      // This bypasses the role and schoolId checks for reading user documents.
-      allow read: if request.auth != null;
-
-      // Other rules remain the same (create, update, delete)
+      allow read: if request.auth != null && (
+        request.auth.uid == userId ||
+        getUserData(request.auth.uid).data.role == 'superAdmin' ||
+        (getUserData(request.auth.uid).data.role == 'schoolAdmin' && getUserData(request.auth.uid).data.schoolId == resource.data.schoolId) ||
+        (getUserData(request.auth.uid).data.role == 'teacher' && getUserData(request.auth.uid).data.schoolId == resource.data.schoolId)
+      );
       allow create: if request.auth != null && (
-        getUserData(request.auth.uid).role == 'superAdmin' ||
-        (getUserData(request.auth.uid).role == 'schoolAdmin' && request.resource.data.role == 'teacher' && request.resource.data.schoolId == getUserData(request.auth.uid).schoolId)
+        getUserData(request.auth.uid).data.role == 'superAdmin' ||
+        (getUserData(request.auth.uid).data.role == 'schoolAdmin' && request.resource.data.role == 'teacher' && request.resource.data.schoolId == getUserData(request.auth.uid).data.schoolId)
       );
       allow update: if request.auth != null && (
         request.auth.uid == userId ||
-        getUserData(request.auth.uid).role == 'superAdmin'
+        getUserData(request.auth.uid).data.role == 'superAdmin'
       );
-      allow delete: if false;
+      allow delete: if false; // Deletion is typically handled via Cloud Functions or denied
     }
 
-    // --- Schools Collection Rules (TEMPORARILY LOOSENED FOR AUTHENTICATED READ) ---
+    // --- Rules for 'schools' collection ---
     match /schools/{schoolId} {
-      // Temporarily allow any authenticated user to read ANY school document.
-      // This bypasses the role and schoolId checks for reading school documents.
-      allow read: if request.auth != null;
-
-      // Other rules remain the same (write)
-      allow write: if request.auth != null && getUserData(request.auth.uid).role == 'superAdmin';
+      allow read: if request.auth != null && (
+        getUserData(request.auth.uid).data.role == 'superAdmin' ||
+        (getUserData(request.auth.uid).data.role == 'schoolAdmin' && getUserData(request.auth.uid).data.schoolId == schoolId) ||
+        (getUserData(request.auth.uid).data.role == 'teacher' && getUserData(request.auth.uid).data.schoolId == schoolId)
+      );
+      allow write: if request.auth != null && getUserData(request.auth.uid).data.role == 'superAdmin';
     }
 
-    // --- Students Collection Rules (NEWLY ADDED / TEMPORARILY LOOSENED for debugging) ---
+    // --- Rules for 'students' collection ---
     match /students/{studentId} {
-      // Temporarily allow any authenticated user to read ANY student document.
-      // We'll see if this fixes the read error.
-      allow read: if debug(request.auth != null); // Debug the basic authentication check
-
-      // Allow create/update rules (from previous steps, assuming they are correct)
+      allow read: if request.auth != null && (
+        getUserData(request.auth.uid).data.role == 'superAdmin' ||
+        (getUserData(request.auth.uid).data.role == 'schoolAdmin' && resource.data.schoolId == getUserData(request.auth.uid).data.schoolId) ||
+        (getUserData(request.auth.uid).data.role == 'teacher' && resource.data.schoolId == getUserData(request.auth.uid).data.schoolId)
+      );
       allow create: if request.auth != null && (
-        getUserData(request.auth.uid).role == 'superAdmin' ||
-        (getUserData(request.auth.uid).role == 'schoolAdmin' && request.resource.data.schoolId == getUserData(request.auth.uid).schoolId)
+        getUserData(request.auth.uid).data.role == 'superAdmin' ||
+        (getUserData(request.auth.uid).data.role == 'schoolAdmin' && request.resource.data.schoolId == getUserData(request.auth.uid).data.schoolId)
       );
       allow update: if request.auth != null && (
-        getUserData(request.auth.uid).role == 'superAdmin' ||
-        (getUserData(request.auth.uid).role == 'schoolAdmin' && resource.data.schoolId == getUserData(request.auth.uid).schoolId) ||
-        (getUserData(request.auth.uid).role == 'teacher' && resource.data.schoolId == getUserData(request.auth.uid).schoolId)
-      );
+        getUserData(request.auth.uid).data.role == 'superAdmin' ||
+        (getUserData(request.auth.uid).data.role == 'schoolAdmin' && resource.data.schoolId == getUserData(request.auth.uid).data.schoolId) ||
+        (getUserData(request.auth.uid).data.role == 'teacher' && resource.data.schoolId == getUserData(request.auth.uid).data.schoolId && request.resource.data.keys().hasAll(['totalEarnedPoints', 'totalPossiblePoints', 'dailyPercentage', 'isSuccessfulDay', 'levelAtTimeOfReport', 'updatedStudentLevel', 'updatedStudentDaysInCurrentLevel']))
+      ); // Teacher can update specific fields via point sheet processing
       allow delete: if false;
+
+      // --- Rules for 'dailyPointSheets' subcollection ---
+      match /dailyPointSheets/{pointSheetId} {
+        allow create, read: if request.auth != null && (
+          getUserData(request.auth.uid).data.role == 'superAdmin' ||
+          (getUserData(request.auth.uid).data.role == 'schoolAdmin' && resource.data.schoolId == getUserData(request.auth.uid).data.schoolId) ||
+          (getUserData(request.auth.uid).data.role == 'teacher' && resource.data.schoolId == getUserData(request.auth.uid).data.schoolId)
+        );
+        allow update, delete: if false;
+      }
     }
 
-    // --- Default/Catch-all (deny all other access by default) ---
+    // --- NEW: Rules for 'classes' collection ---
+    match /classes/{classId} {
+      allow read: if request.auth != null && (
+        getUserData(request.auth.uid).data.role == 'superAdmin' ||
+        (getUserData(request.auth.uid).data.role == 'schoolAdmin' && resource.data.schoolId == getUserData(request.auth.uid).data.schoolId) ||
+        (getUserData(request.auth.uid).data.role == 'teacher' && resource.data.teacherUid == request.auth.uid)
+      );
+      allow create: if request.auth != null && (
+        getUserData(request.auth.uid).data.role == 'superAdmin' ||
+        (getUserData(request.auth.uid).data.role == 'teacher' && request.resource.data.teacherUid == request.auth.uid && request.resource.data.schoolId == getUserData(request.auth.uid).data.schoolId)
+      );
+      allow update: if request.auth != null && (
+        getUserData(request.auth.uid).data.role == 'superAdmin' ||
+        (getUserData(request.auth.uid).data.role == 'teacher' && resource.data.teacherUid == request.auth.uid)
+      );
+      allow delete: if request.auth != null && (
+        getUserData(request.auth.uid).data.role == 'superAdmin' ||
+        (getUserData(request.auth.uid).data.role == 'teacher' && resource.data.teacherUid == request.auth.uid)
+      );
+    }
+
+    // Default: Deny all other access
     match /{document=**} {
       allow read, write: if false;
     }

@@ -103,7 +103,7 @@
 }
 
 /* General button styling for main logout */
-.dashboard-card > button { /* Targets the direct child button (Log Out) */
+.dashboard-card > button.logout-button { /* Targets the direct child button (Log Out) */
   background-color: #E53E3E; /* Red for logout, slightly adjusted for theme */
   color: white;
   border: none;
@@ -121,7 +121,7 @@
   margin-right: auto; /* Center it */
 }
 
-.dashboard-card > button:hover {
+.dashboard-card > button.logout-button:hover {
   background-color: #C53030; /* Darker red on hover */
   transform: translateY(-2px); /* Slight lift effect */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow on hover */
@@ -142,7 +142,7 @@
   margin-top: 0;
   margin-bottom: 20px;
   text-align: center; /* Center section titles */
-  font-size: 1.8em; /* Larger font */
+  font-size: 1.8em;
   font-weight: 700;
 }
 
@@ -151,7 +151,7 @@
   margin-top: 25px;
   margin-bottom: 15px;
   text-align: center;
-  font-size: 1.3em; /* Slightly larger */
+  font-size: 1.3em;
   border-bottom: 1px solid #4A5568; /* Darker border */
   padding-bottom: 8px; /* More padding */
   font-weight: 600;
@@ -171,7 +171,8 @@
 .admin-form input[type="text"],
 .admin-form input[type="email"],
 .admin-form input[type="password"],
-.admin-form select { /* Include select for new user roles */
+.admin-form select,
+.admin-form-select { /* Added .admin-form-select for consistent styling */
   width: calc(100% - 24px); /* Account for padding */
   padding: 12px; /* Increased padding */
   border: 1px solid #4A5568; /* Darker border for inputs, matching auth-page */
@@ -195,16 +196,14 @@
   color: #A0AEC0; /* Lighter placeholder text, matching auth-page */
 }
 
-.admin-form input[type="text"]:focus,
-.admin-form input[type="email"]:focus,
-.admin-form input[type="password"]:focus,
-.admin-form select:focus {
+.admin-form input[type="text"]:focus, .admin-form input[type="email"]:focus, .admin-form input[type="password"]:focus, .admin-form select:focus, .admin-form-select:focus { /* Added .admin-form-select for focus styling */
   outline: none;
   border-color: #4299E1; /* Vibrant blue border on focus, matching auth-page */
   box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5); /* Blue glow on focus, matching auth-page */
 }
 
-.admin-form button[type="submit"] {
+.admin-form button[type="submit"],
+.submit-button { /* Applied submit-button styling to admin-form's submit as well */
   background-color: #4CAF50; /* Green for submit button */
   color: white;
   border: none;
@@ -219,71 +218,96 @@
   transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.admin-form button[type="submit"]:hover {
+.admin-form button[type="submit"]:hover,
+.submit-button:hover {
   background-color: #45a049;
   transform: translateY(-2px); /* Slight lift effect */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow on hover */
 }
 
-.admin-form button[type="submit"]:disabled {
+.admin-form button[type="submit"]:disabled,
+.submit-button:disabled {
   background-color: #718096;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
-.schools-list, .users-list { /* Shared styling for lists */
+.schools-list, .users-list, .classes-list { /* Shared styling for lists */
   margin-top: 30px;
   border-top: 1px solid #4A5568; /* Darker separator line */
   padding-top: 20px;
 }
 
-.schools-list h4, .users-list h4 {
+.schools-list h4, .users-list h4, .classes-list h4 {
   color: #E2E8F0; /* Matching main text color for consistency */
   margin-bottom: 15px;
   text-align: center;
-  font-size: 1.4em; /* Larger font */
+  font-size: 1.4em;
   font-weight: 600;
 }
 
-.schools-list ul, .users-list ul {
+.schools-list ul, .users-list ul, .classes-list ul, .class-students-in-list {
   list-style: none; /* Remove default list bullets */
   padding: 0;
 }
 
-.schools-list li, .users-list li {
+.schools-list li, .users-list li, .class-list-item {
   background-color: #3A3F47; /* Consistent dark background for list items */
   padding: 15px 20px; /* More padding */
   border-radius: 8px; /* More rounded */
   margin-bottom: 12px; /* More space */
   display: flex; /* Use flexbox for layout within list items */
-  flex-direction: column; /* Stack vertically */
+  flex-direction: column; /* Stack vertically by default */
   align-items: flex-start; /* Align text to the left */
   font-size: 1em; /* Slightly larger font */
   line-height: 1.6;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Deeper shadow */
+  color: #E2E8F0; /* Default text color for list items */
+  position: relative; /* For absolute positioning of buttons if needed */
 }
 
-.schools-list li strong, .users-list li strong {
+/* Specific styling for student list items within a class overview */
+.class-students-in-list li {
+    background-color: #4A5568; /* Darker background for nested students */
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+    color: #CBD5E0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: none; /* No extra shadow */
+    width: 100%; /* Ensure it takes full width of its parent ul */
+}
+
+.schools-list li strong, .users-list li strong, .class-list-item strong {
   color: #E2E8F0; /* Matching main text color */
   font-size: 1.2em; /* Larger font */
   margin-bottom: 5px;
 }
 
-.schools-list li span, .users-list li span { /* For address/email/role */
+.schools-list li span, .users-list li span, .class-list-item span { /* For address/email/role */
   color: #A0AEC0; /* Muted color */
   font-size: 0.95em;
 }
 
 .student-list-item {
-  cursor: pointer;
+  cursor: default; /* Default cursor for general student list items in main view */
   transition: background-color 0.2s ease-in-out, transform 0.1s ease;
 }
 
-.student-list-item:hover {
-  background-color: #4A5568; /* Darker on hover */
+/* Make specific rows clickable for navigation */
+.clickable-row {
+    cursor: pointer;
+}
+
+.student-list-item.clickable-row:hover {
+  background-color: #5F6B7E; /* Darker on hover */
   transform: translateY(-2px); /* Subtle lift */
 }
+
 
 /* Global styling for text links in the dashboard */
 .dashboard-link {
@@ -382,4 +406,217 @@
   padding: 15px 0;
   text-align: center;
   width: 100%; /* Ensure it spans full width */
+}
+
+/* --- Modal Styles --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent dark overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure it's on top */
+}
+
+.modal-content {
+  background-color: #2D3748; /* Same as dashboard card */
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5); /* Stronger shadow for modal */
+  max-width: 500px;
+  width: 90%;
+  color: #E2E8F0;
+  position: relative; /* For close button positioning */
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #4A5568; /* Subtle separator */
+}
+
+.modal-title {
+  font-size: 1.8em;
+  font-weight: 700;
+  color: #E2E8F0;
+  margin: 0;
+}
+
+.modal-close-button {
+  background: none;
+  border: none;
+  color: #CBD5E0;
+  font-size: 2em;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.modal-close-button:hover {
+  color: #FF6B6B; /* Reddish on hover for close */
+}
+
+.modal-body {
+  margin-bottom: 20px;
+}
+
+/* Modal specific form and button styles - largely reuse .admin-form styles */
+.modal-content .admin-form {
+    padding: 0; /* Remove extra padding if admin-form has it */
+    margin-top: 0; /* Remove extra margin */
+    box-shadow: none; /* Remove shadow */
+    background-color: transparent; /* No background for form itself within modal */
+}
+
+.modal-content .submit-button {
+    width: auto; /* Allow submit button in modal to be content-based width */
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    min-width: 150px; /* Consistent min-width */
+}
+
+/* New buttons for class management */
+.add-class-button {
+  background-color: #4299E1; /* Vibrant blue */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 15px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.add-class-button:hover {
+  background-color: #3182CE;
+  transform: translateY(-1px);
+}
+
+.class-list-item {
+    display: flex;
+    flex-direction: column; /* Stack name, students, and actions vertically */
+    align-items: flex-start;
+    padding-bottom: 10px; /* Add space for actions */
+}
+
+.class-list-item h4 {
+    color: #E2E8F0; /* Class name color */
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.3em;
+    text-align: left; /* Align class name to left */
+    border-bottom: none; /* Remove border from h4 within list item */
+    padding-bottom: 0;
+}
+
+.class-students-overview ul {
+    list-style: none;
+    padding: 0;
+    margin-left: 15px; /* Indent student list */
+}
+
+.class-students-overview li {
+    background-color: #4A5568; /* Darker background for nested students */
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+    color: #CBD5E0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: none; /* No extra shadow */
+}
+
+.class-students-overview li:hover {
+    background-color: #5F6B7E; /* Slightly lighter on hover */
+}
+
+.class-actions {
+    display: flex;
+    gap: 10px; /* Space between edit/delete buttons */
+    margin-top: 15px;
+    width: 100%; /* Take full width */
+    justify-content: flex-end; /* Align actions to the right */
+}
+
+.class-actions .edit-button,
+.class-actions .delete-button {
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+  flex-grow: 0; /* Don't grow */
+  min-width: 90px;
+}
+
+.class-actions .edit-button {
+  background-color: #4299E1; /* Blue for edit */
+  color: white;
+  border: none;
+}
+
+.class-actions .edit-button:hover {
+  background-color: #3182CE;
+}
+
+.class-actions .delete-button {
+  background-color: #E53E3E; /* Red for delete */
+  color: white;
+  border: none;
+}
+
+.class-actions .delete-button:hover {
+  background-color: #C53030;
+}
+
+.student-in-class-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 8px;
+    padding: 10px 15px;
+    background-color: #4A5568; /* Darker background for students in edit modal */
+    border-radius: 6px;
+}
+
+.student-in-class-item .remove-student-button { /* Specific class for the remove button in modal */
+    background: none; /* Transparent background */
+    border: none;
+    color: #FC8181; /* Red 'x' */
+    font-size: 1.5em; /* Larger 'x' */
+    cursor: pointer;
+    padding: 0 5px;
+    line-height: 1; /* Align vertically */
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.student-in-class-item .remove-student-button:hover {
+    color: #E53E3E; /* Darker red on hover */
+    transform: scale(1.1);
+}
+
+.section-subheading {
+    color: #E2E8F0;
+    margin-top: 20px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 1.3em;
+    font-weight: 600;
+    border-bottom: 1px solid #4A5568;
+    padding-bottom: 8px;
 }
