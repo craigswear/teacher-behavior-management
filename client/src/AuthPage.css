@@ -1,20 +1,13 @@
 /* client/src/AuthPage.css */
 
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  /* Ensure html and body match the container background */
-  background-color: #1A202C; 
-  overflow: hidden; /* Prevent scrolling if content slightly overflows */
-}
+/* Removed html, body styles as they are now handled globally by App.css */
 
 .auth-container {
   display: flex;
   flex-direction: column; /* Allows content and footer to stack vertically */
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  /* Removed min-height: 100vh; to allow content to extend and page to scroll */
   width: 100vw; /* Ensure it spans the full viewport width */
   /* Darker blue background inspired by the main site */
   background-color: #1A202C; /* A very dark blue-gray */

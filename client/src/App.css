@@ -1,40 +1,46 @@
 /* client/src/App.css */
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: #282c34; /* Dark background */
-  color: white; /* White text */
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+
+/* Global HTML and Body styles for consistent theme */
+html {
+  height: 100%; /* Ensures html takes full viewport height */
 }
 
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%; /* Ensures body takes full html height */
+  width: 100vw; /* Ensures body takes full viewport width */
+  background-color: #1A202C; /* Consistent dark background color across the entire app */
+  color: #E2E8F0; /* Consistent off-white text color */
+  /* Using 'Inter' font consistent with other themed pages */
+  font-family: 'Inter', sans-serif; 
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Explicitly enable scrolling on the body */
+  overflow-y: auto; 
+  overflow-x: hidden; /* Hide horizontal scrollbar if any */
+}
+
+/* Original .App and .App-header styles - ensure they align with the new global body */
 .App {
   text-align: center;
   padding: 20px;
+  width: 100%; /* Ensure App component takes full width available */
 }
 
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
+  width: 100%; /* Ensure header spans full width within App */
 }
-/* client/src/App.css */
-/* ... (previous styles) ... */
 
-/* Add this to display the initError in App.js */
+/* Error message style - maintained for App.js use */
 .error-message {
-  color: #ff6b6b; /* Red color for errors */
+  color: #FC8181; /* Consistent soft red for errors */
   margin-top: 10px;
   font-size: 1.1em;
   font-weight: bold;

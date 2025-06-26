@@ -1,177 +1,198 @@
 /* client/src/Dashboard.css */
 /* This file contains shared styles for various dashboards and admin sections */
 
+/* Removed html, body styles as they are now handled globally by App.css */
+
 .dashboard-container {
   display: flex;
-  justify-content: center;
-  align-items: flex-start; /* Align content to the top */
-  min-height: 100vh;
-  background-color: #282c34; /* Dark background */
-  color: white; /* White text */
+  flex-direction: column; /* Allows content to stack vertically for scrolling */
+  justify-content: flex-start; /* Align content to the top */
+  align-items: center;
+  /* Removed min-height: 100vh; to allow content to extend and page to scroll */
+  background-color: #1A202C; /* Darker blue background, consistent with App.css */
+  color: #E2E8F0; /* Off-white text, consistent with App.css */
   padding: 20px;
   box-sizing: border-box;
+  font-family: 'Inter', sans-serif; /* Consistent font family */
+  width: 100vw; /* Ensure it spans the full viewport width */
 }
 
 .dashboard-card {
-  background-color: #3a3f47; /* Slightly lighter dark background for the card */
+  background-color: #2D3748; /* Slightly lighter dark background for the card, matching auth-card */
   padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 12px; /* More rounded corners for a smoother look, matching auth-card */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); /* Deeper shadow for prominence, matching auth-card */
   text-align: center;
   width: 100%;
   max-width: 800px; /* Increased max-width for admin dashboards to accommodate more content */
   margin-top: 20px; /* Add some top margin */
   margin-bottom: 20px; /* Add some bottom margin */
+  transition: all 0.3s ease-in-out; /* Smooth transition for any future changes */
 }
 
 .dashboard-card h2 {
-  margin-bottom: 20px;
-  color: #61dafb; /* React blue */
+  margin-bottom: 25px; /* Slightly more space below heading */
+  color: #E2E8F0; /* Heading color matching main text for consistency */
+  font-size: 1.8em;
+  font-weight: 700;
 }
 
 .dashboard-card p {
   margin-bottom: 15px;
   line-height: 1.5;
+  color: #CBD5E0; /* Lighter grey for general paragraphs */
 }
 
 /* Email verification warning - existing styles (from Dashboard.js) */
 .email-verification-warning {
-  background-color: #ffe082; /* Light orange background */
-  color: #333; /* Darker text for contrast */
+  background-color: #3A3F47; /* Darker background to fit theme, instead of light orange */
+  color: #FEEBC6; /* Lighter text for contrast on dark background */
   padding: 15px;
-  border-radius: 5px;
+  border-radius: 8px; /* More rounded corners */
   margin-bottom: 20px;
-  border: 1px solid #ffca28; /* Darker orange border */
+  border: 1px solid #ECC94B; /* Yellowish border */
 }
 
 .email-verification-warning p {
-    margin-bottom: 10px;
-    font-weight: bold;
+  margin-bottom: 10px;
+  font-weight: bold;
 }
 
 .email-verification-warning .note {
-    font-size: 0.9em;
-    color: #555;
-    margin-top: 10px;
+  font-size: 0.9em;
+  color: #A0AEC0; /* Muted color for note */
+  margin-top: 10px;
 }
 
 .email-verification-warning button {
-  background-color: #ff9800; /* Orange color */
-  color: white;
+  background-color: #ECC94B; /* Yellowish button */
+  color: #2D3748; /* Dark text on button */
   border: none;
-  padding: 8px 15px;
-  border-radius: 4px;
+  padding: 10px 20px; /* Increased padding */
+  border-radius: 5px;
   cursor: pointer;
-  font-size: 14px;
-  margin-top: 10px;
-  transition: background-color 0.3s ease;
+  font-size: 16px; /* Larger font */
+  margin-top: 15px; /* Increased margin */
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .email-verification-warning button:hover {
-  background-color: #fb8c00;
+  background-color: #D69E2E; /* Darker yellow on hover */
+  transform: translateY(-1px);
 }
 
 .email-verification-warning button:disabled {
-  background-color: #bdbdbd;
+  background-color: #718096;
   cursor: not-allowed;
+  transform: none;
 }
 
 /* General error and success messages (used across multiple components) */
 .error-message {
-  color: #ff6b6b; /* Red color for errors */
+  color: #FC8181; /* Soft red for errors, matching auth-page */
   margin-top: 10px;
   font-size: 1em;
   font-weight: bold;
 }
 
 .success-message {
-  color: #4CAF50; /* Green color for success */
+  color: #68D391; /* Soft green for success, matching auth-page */
   margin-top: 10px;
   font-size: 1em;
   font-weight: bold;
 }
 
-/* General button styling for main logout (overridden by admin-section buttons) */
+/* General button styling for main logout */
 .dashboard-card > button { /* Targets the direct child button (Log Out) */
-  background-color: #f44336; /* Red for logout */
+  background-color: #E53E3E; /* Red for logout, slightly adjusted for theme */
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
+  padding: 12px 25px; /* More padding for a substantial button, matching auth-card */
+  border-radius: 8px; /* Rounded button corners, matching auth-card */
   cursor: pointer;
-  font-size: 16px;
-  margin-top: 20px;
-  transition: background-color 0.3s ease;
+  font-size: 17px; /* Larger font, matching auth-card */
+  font-weight: 600; /* Semi-bold text, matching auth-card */
+  margin-top: 30px; /* More space */
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
   width: auto;
-  min-width: 150px;
+  min-width: 160px; /* Slightly wider minimum width, matching auth-card */
   display: block; /* Make it a block element */
   margin-left: auto; /* Center it */
   margin-right: auto; /* Center it */
 }
 
 .dashboard-card > button:hover {
-  background-color: #d32f2f;
+  background-color: #C53030; /* Darker red on hover */
+  transform: translateY(-2px); /* Slight lift effect */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow on hover */
 }
 
 /* ADMIN DASHBOARD SPECIFIC STYLES (for sections within SuperAdminDashboard) */
 .admin-section {
-  background-color: #30343a; /* Slightly darker than card, for sectioning */
-  padding: 20px;
-  border-radius: 6px;
-  margin-top: 25px;
+  background-color: #2D3748; /* Same as dashboard card for consistency or slightly darker/lighter */
+  padding: 25px; /* Increased padding */
+  border-radius: 10px; /* More rounded */
+  margin-top: 30px; /* More space */
   text-align: left; /* Align content inside sections to left */
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); /* Inner shadow for depth */
 }
 
 .admin-section h3 {
-  color: #61dafb;
+  color: #E2E8F0; /* Matching main text color for consistency */
   margin-top: 0;
   margin-bottom: 20px;
   text-align: center; /* Center section titles */
-  font-size: 1.6em;
+  font-size: 1.8em; /* Larger font */
+  font-weight: 700;
 }
 
 .admin-section h4 { /* For sub-headings like "Existing Schools" */
-    color: #a0a0a0; /* Lighter grey for sub-heading */
-    margin-top: 25px;
-    margin-bottom: 15px;
-    text-align: center;
-    font-size: 1.2em;
-    border-bottom: 1px solid #555;
-    padding-bottom: 5px;
+  color: #CBD5E0; /* Lighter grey for sub-heading */
+  margin-top: 25px;
+  margin-bottom: 15px;
+  text-align: center;
+  font-size: 1.3em; /* Slightly larger */
+  border-bottom: 1px solid #4A5568; /* Darker border */
+  padding-bottom: 8px; /* More padding */
+  font-weight: 600;
 }
 
-
 .admin-form .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 20px; /* Increased margin */
 }
 
 .admin-form label {
   display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-  color: #bbbbbb;
+  margin-bottom: 8px; /* More space */
+  font-weight: 500;
+  color: #CBD5E0; /* Light gray for labels */
 }
 
 .admin-form input[type="text"],
 .admin-form input[type="email"],
 .admin-form input[type="password"],
 .admin-form select { /* Include select for new user roles */
-  width: calc(100% - 20px); /* Account for padding */
-  padding: 10px;
-  border: 1px solid #555;
-  border-radius: 4px;
-  background-color: #444;
-  color: white;
+  width: calc(100% - 24px); /* Account for padding */
+  padding: 12px; /* Increased padding */
+  border: 1px solid #4A5568; /* Darker border for inputs, matching auth-page */
+  border-radius: 8px; /* More rounded input fields, matching auth-page */
+  background-color: #4A5568; /* Background color matching the border, matching auth-page */
+  color: #E2E8F0; /* Input text color, matching auth-page */
   font-size: 16px;
   box-sizing: border-box; /* Ensures padding/border are included in width */
   appearance: none; /* Remove default select arrow */
   -webkit-appearance: none;
   -moz-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23bbb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); /* Custom arrow */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A0AEC0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); /* Custom arrow, updated color */
   background-repeat: no-repeat;
   background-position: right 10px center;
   background-size: 20px;
+  outline: none; /* Remove default outline */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transition on focus */
+}
+
+.admin-form input::placeholder {
+  color: #A0AEC0; /* Lighter placeholder text, matching auth-page */
 }
 
 .admin-form input[type="text"]:focus,
@@ -179,44 +200,50 @@
 .admin-form input[type="password"]:focus,
 .admin-form select:focus {
   outline: none;
-  border-color: #61dafb;
-  box-shadow: 0 0 0 2px rgba(97, 218, 251, 0.5);
+  border-color: #4299E1; /* Vibrant blue border on focus, matching auth-page */
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5); /* Blue glow on focus, matching auth-page */
 }
 
 .admin-form button[type="submit"] {
   background-color: #4CAF50; /* Green for submit button */
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
+  padding: 12px 25px; /* More padding for a substantial button, matching auth-card */
+  border-radius: 8px; /* Rounded button corners, matching auth-card */
   cursor: pointer;
-  font-size: 16px;
-  margin-top: 20px;
+  font-size: 17px; /* Larger font, matching auth-card */
+  font-weight: 600; /* Semi-bold text, matching auth-card */
+  margin-top: 25px; /* More space */
   width: 100%; /* Make submit button full width within its section */
   min-width: unset; /* Override previous min-width */
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .admin-form button[type="submit"]:hover {
   background-color: #45a049;
+  transform: translateY(-2px); /* Slight lift effect */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow on hover */
 }
 
 .admin-form button[type="submit"]:disabled {
-  background-color: #888;
+  background-color: #718096;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .schools-list, .users-list { /* Shared styling for lists */
   margin-top: 30px;
-  border-top: 1px solid #555; /* Separator line */
+  border-top: 1px solid #4A5568; /* Darker separator line */
   padding-top: 20px;
 }
 
 .schools-list h4, .users-list h4 {
-  color: #61dafb; /* Changed to react blue for lists */
+  color: #E2E8F0; /* Matching main text color for consistency */
   margin-bottom: 15px;
   text-align: center;
-  font-size: 1.2em;
+  font-size: 1.4em; /* Larger font */
+  font-weight: 600;
 }
 
 .schools-list ul, .users-list ul {
@@ -225,33 +252,134 @@
 }
 
 .schools-list li, .users-list li {
-  background-color: #444b55; /* Slightly darker background for list items */
-  padding: 12px 15px;
-  border-radius: 4px;
-  margin-bottom: 10px;
+  background-color: #3A3F47; /* Consistent dark background for list items */
+  padding: 15px 20px; /* More padding */
+  border-radius: 8px; /* More rounded */
+  margin-bottom: 12px; /* More space */
   display: flex; /* Use flexbox for layout within list items */
   flex-direction: column; /* Stack vertically */
   align-items: flex-start; /* Align text to the left */
-  font-size: 0.95em;
-  line-height: 1.4;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1); /* Subtle shadow for items */
+  font-size: 1em; /* Slightly larger font */
+  line-height: 1.6;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Deeper shadow */
 }
 
 .schools-list li strong, .users-list li strong {
-    color: #ddd; /* Slightly lighter color for names/emails */
-    font-size: 1.1em;
-    margin-bottom: 5px;
+  color: #E2E8F0; /* Matching main text color */
+  font-size: 1.2em; /* Larger font */
+  margin-bottom: 5px;
 }
 
 .schools-list li span, .users-list li span { /* For address/email/role */
-    color: #bbb;
-    font-size: 0.9em;
+  color: #A0AEC0; /* Muted color */
+  font-size: 0.95em;
 }
+
 .student-list-item {
-    cursor: pointer;
-    transition: background-color 0.2s ease-in-out;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, transform 0.1s ease;
 }
 
 .student-list-item:hover {
-    background-color: #555c66; /* Slightly lighter on hover */
+  background-color: #4A5568; /* Darker on hover */
+  transform: translateY(-2px); /* Subtle lift */
+}
+
+/* Global styling for text links in the dashboard */
+.dashboard-link {
+    color: #4299E1; /* Vibrant blue for links */
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.dashboard-link:hover {
+    color: #3182CE; /* Darker blue on hover */
+    text-decoration: underline;
+}
+
+/* Specific styling for the header if it's introduced in Dashboard.js */
+.dashboard-header {
+  width: 100%;
+  padding: 15px 20px;
+  background-color: #2D3748; /* Same as dashboard card */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  margin-bottom: 20px; /* Space below header */
+  border-radius: 8px;
+}
+
+.dashboard-header .logo-title-group {
+  display: flex;
+  align-items: center;
+}
+
+.dashboard-header .sams-logo {
+  width: 50px; /* Smaller logo for header */
+  height: auto;
+  margin-right: 10px;
+  border-radius: 5px;
+}
+
+.dashboard-header .main-title {
+  font-size: 1.5em;
+  font-weight: 700;
+  margin: 0;
+}
+
+.dashboard-header .subtitle {
+  font-size: 0.9em;
+  color: #CBD5E0;
+  margin-left: 10px;
+}
+
+.dashboard-header .header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* Space between header items */
+}
+
+.dashboard-header .request-info-button,
+.dashboard-header .bms-access-link,
+.dashboard-header .twitter-link {
+  color: #E2E8F0;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid transparent; /* Added for consistency */
+}
+
+.dashboard-header .request-info-button {
+  background-color: #4299E1; /* Blue background for button */
+  color: white;
+  border: none;
+}
+
+.dashboard-header .request-info-button:hover {
+  background-color: #3182CE;
+}
+
+.dashboard-header .bms-access-link:hover,
+.dashboard-header .twitter-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+}
+
+.dashboard-header .twitter-link svg {
+  margin-right: 5px;
+}
+
+/* If you need a consistent footer on dashboard pages */
+.dashboard-footer {
+  margin-top: auto; /* Pushes the footer to the bottom */
+  color: #718096;
+  font-size: 0.8em;
+  padding: 15px 0;
+  text-align: center;
+  width: 100%; /* Ensure it spans full width */
 }
