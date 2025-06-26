@@ -86,6 +86,19 @@ function AuthPage() {
 
   return (
     <div className="auth-container">
+      <div className="header-section">
+        {/* Logo Placeholder */}
+        <img
+          src="/logo.png" // Assuming logo.png will be in the public folder
+          alt="SAMS Logo"
+          className="sams-logo"
+          onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/100x100/2D3748/E2E8F0?text=Logo"; }} // Fallback image
+        />
+        {/* Title */}
+        <h1 className="main-title">SAMS Edu-BMS</h1>
+        <p className="subtitle">Behavior Management System</p>
+      </div>
+
       <div className="auth-card">
         <h2>{isLogin ? 'Login' : 'Sign Up'}</h2>
         <form onSubmit={handleAuth}>
