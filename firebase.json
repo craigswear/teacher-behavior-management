@@ -6,7 +6,17 @@
   "functions": {
     "source": "functions",
     "runtime": "nodejs20",
-    "secrets": ["SENDGRID_API_KEY", "APP_NAME_SECRET"]
+    "secrets": ["SENDGRID_API_KEY", "APP_NAME_SECRET"],
+    "exports": { 
+      "createUserByAdmin": {
+        "runtime": "nodejs20",
+        "secrets": ["SENDGRID_API_KEY", "APP_NAME_SECRET"]
+      },
+      "processDailyPointSheet": { 
+        "runtime": "nodejs20",
+        "secrets": ["SENDGRID_API_KEY", "APP_NAME_SECRET"] 
+      }
+    }
   },
   "hosting": {
     "public": "client/build",

@@ -1,78 +1,71 @@
 // client/src/StudentDetailPage.js
 // Summary of Changes:
-// - New component for displaying a single student's details.
-// - Uses useParams to get the student ID from the URL.
-// - Fetches student data from Firestore based on the ID.
-// - Includes the full UI for a daily point sheet (RISE categories, periods).
-// - Handles "Student Absent" toggle and real-time point calculations.
-// - Prepares for point sheet submission to a Cloud Function (processDailyPointSheet).
-// - Provides navigation back to the teacher dashboard and logout functionality.
+// - Moved 'fetchStudentDetails' function definition to the top-level of the component,
+//   making it accessible by other handlers like handleSubmitPointSheet.
+// - Ensures all helper functions are correctly defined and scoped.
 
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; // Import useParams to read URL, useNavigate for navigation
-import { auth, db, app } from './firebaseConfig'; // Import auth, db, app
-import { doc, getDoc, collection, query, where, orderBy, getDocs } from 'firebase/firestore'; // Import Firestore functions
-import { signOut } from 'firebase/auth'; // For logout functionality
-import { getFunctions, httpsCallable } from 'firebase/functions'; // For Cloud Function calls
+import { useParams, useNavigate } from 'react-router-dom';
+import { auth, db, app } from './firebaseConfig';
+import { doc, getDoc, collection, query, where, orderBy, getDocs } from 'firebase/firestore'; 
+import { signOut } from 'firebase/auth'; 
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
-import './Dashboard.css'; // Reusing general dashboard styling
-import './StudentDetailPage.css'; // NEW: Specific styling for student detail page (will create next)
-import './DailyPointSheet.css'; // NEW: Specific styling for point sheet table (will create next)
+import './Dashboard.css'; 
+import './StudentDetailPage.css'; 
+import './DailyPointSheet.css'; 
 
 // Predefined options for RISE categories and their numerical values
 const RISE_OPTIONS = [
   { label: "Met Expectations", value: 2 },
   { label: "Partial Effort/Needs Improvement", value: 1 },
   { label: "Did Not Meet Expectations", value: 0 },
-  { label: "Not Applicable", value: -1 } // Use -1 to indicate not scored for total possible points
+  { label: "Not Applicable", value: -1 } 
 ];
-const NUM_PERIODS = 6; // Total periods in a day for point sheet
-const POINTS_PER_CATEGORY_MAX = 2; // Max points a student can earn per category per period
-const CATEGORIES = ["respect", "integrity", "self", "excellence"]; // The four RISE categories
+const NUM_PERIODS = 6; 
+const POINTS_PER_CATEGORY_MAX = 2; 
+const CATEGORIES = ["respect", "integrity", "self", "excellence"]; 
 
 function StudentDetailPage() {
-  const { studentId } = useParams(); // Hook to get studentId from URL parameter (e.g., /student/123)
-  const navigate = useNavigate(); // Hook for programmatic navigation
+  const { studentId } = useParams();
+  const navigate = useNavigate();
 
   // --- State Variables ---
-  const [studentData, setStudentData] = useState(null); // Stores the fetched student's data
-  const [fetchStudentLoading, setFetchStudentLoading] = useState(true); // Loading state for student data
-  const [fetchStudentError, setFetchStudentError] = useState(null); // Error state for student data fetching
+  const [studentData, setStudentData] = useState(null);
+  const [fetchStudentLoading, setFetchStudentLoading] = useState(true);
+  const [fetchStudentError, setFetchStudentError] = useState(null);
 
-  // State for the daily point sheet input
-  const [pointSheetData, setPointSheetData] = useState([]); // Array to store scores for each period
-  const [isAbsent, setIsAbsent] = useState(false); // State for student's absence today
-  const [dailyTotalPoints, setDailyTotalPoints] = useState(0); // Calculated total points earned for the day
-  const [dailyPossiblePoints, setDailyPossiblePoints] = useState(0); // Calculated total possible points for the day
-  const [dailyPercentage, setDailyPercentage] = useState(0); // Calculated daily percentage
-  const [submitLoading, setSubmitLoading] = useState(false); // Loading state for point sheet submission
-  const [submitError, setSubmitError] = useState(null); // Error message for submission
-  const [submitSuccess, setSubmitSuccess] = useState(null); // Success message for submission
+  const [pointSheetData, setPointSheetData] = useState([]);
+  const [isAbsent, setIsAbsent] = useState(false);
+  const [dailyTotalPoints, setDailyTotalPoints] = useState(0);
+  const [dailyPossiblePoints, setDailyPossiblePoints] = useState(0);
+  const [dailyPercentage, setDailyPercentage] = useState(0);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
+  const [submitSuccess, setSubmitSuccess] = useState(null);
 
-  const userEmail = auth.currentUser ? auth.currentUser.email : 'Guest'; // Display current user's email
-  const userUid = auth.currentUser ? auth.currentUser.uid : null; // Get current authenticated user's UID
-  const functions = getFunctions(app); // Initialize Firebase Functions instance
+  const userEmail = auth.currentUser ? auth.currentUser.email : 'Guest';
+  const userUid = auth.currentUser ? auth.currentUser.uid : null;
+  const functions = getFunctions(app);
 
 
-  // --- Helper Functions for Point Sheet Logic ---
+  // --- Helper Functions for Point Sheet Logic (Defined at top-level of component) ---
+  // These functions are defined here so they are accessible by all handlers and effects.
 
-  // Initializes the point sheet with default values (Met Expectations)
   const initializePointSheet = () => {
     const initialData = Array.from({ length: NUM_PERIODS }, (_, periodIndex) => ({
       period: periodIndex + 1,
-      respect: 2, // Default to "Met Expectations" for each category
+      respect: 2, 
       integrity: 2,
       self: 2,
       excellence: 2,
-      notes: '' // Empty notes field
+      notes: ''
     }));
     setPointSheetData(initialData);
-    // Initial calculation is done separately when student data loads, no need to do it here
   };
 
-  // Calculates total earned points, total possible points, and daily percentage
   const calculateDailyPoints = (currentPointSheetData, currentIsAbsent) => {
-    if (currentIsAbsent) { // If student is absent, all points are 0
+    if (currentIsAbsent) {
       setDailyTotalPoints(0);
       setDailyPossiblePoints(0);
       setDailyPercentage(0);
@@ -85,7 +78,7 @@ function StudentDetailPage() {
     currentPointSheetData.forEach(period => {
       CATEGORIES.forEach(category => {
         const score = period[category];
-        if (score !== -1) { // Only count if not "Not Applicable" for scoring
+        if (score !== -1) {
           totalEarned += score;
           totalPossible += POINTS_PER_CATEGORY_MAX;
         }
@@ -94,13 +87,11 @@ function StudentDetailPage() {
 
     setDailyTotalPoints(totalEarned);
     setDailyPossiblePoints(totalPossible);
-    // Calculate percentage, avoid division by zero
     setDailyPercentage(totalPossible > 0 ? (totalEarned / totalPossible * 100) : 0);
   };
 
-  // Determines if the day was successful based on daily percentage and student's current level
   const isDaySuccessful = (percentage, level) => {
-    const requiredPercentage = { // Minimum percentage required per level
+    const requiredPercentage = {
       1: 85,
       2: 90,
       3: 95,
@@ -112,17 +103,15 @@ function StudentDetailPage() {
 
   // --- Handlers for Point Sheet UI ---
 
-  // Handles score changes in the dropdowns for a specific period and category
   const handleScoreChange = (periodIndex, category, value) => {
-    const newValue = parseInt(value, 10); // Convert value to integer
+    const newValue = parseInt(value, 10);
     const updatedPointSheetData = pointSheetData.map((period, idx) =>
       idx === periodIndex ? { ...period, [category]: newValue } : period
     );
     setPointSheetData(updatedPointSheetData);
-    calculateDailyPoints(updatedPointSheetData, isAbsent); // Recalculate immediately after change
+    calculateDailyPoints(updatedPointSheetData, isAbsent);
   };
 
-  // Handles changes in the notes field for a specific period
   const handleNotesChange = (periodIndex, notes) => {
     const updatedPointSheetData = pointSheetData.map((period, idx) =>
       idx === periodIndex ? { ...period, notes: notes } : period
@@ -130,86 +119,78 @@ function StudentDetailPage() {
     setPointSheetData(updatedPointSheetData);
   };
 
-  // Handles the "Student Absent Today" checkbox toggle
   const handleAbsentToggle = (e) => {
     const checked = e.target.checked;
-    setIsAbsent(checked); // Update absence status
-    calculateDailyPoints(pointSheetData, checked); // Recalculate based on new absence state
-    if (checked) { // Clear any previous success/error messages if toggling absent
+    setIsAbsent(checked);
+    calculateDailyPoints(pointSheetData, checked);
+    if (checked) {
         setSubmitSuccess(null);
         setSubmitError(null);
     }
   };
 
 
-  // --- Function to fetch student details (existing from previous step) ---
-  // This useEffect runs when the component mounts or dependencies change.
-  useEffect(() => {
-    const fetchStudentDetails = async () => {
-      setFetchStudentLoading(true);
-      setFetchStudentError(null);
+  // Function to fetch student details (Defined at top-level of component)
+  const fetchStudentDetails = async () => { // MOVED THIS DEFINITION OUTSIDE useEffect
+    setFetchStudentLoading(true);
+    setFetchStudentError(null);
 
-      if (!userUid) { 
-        setFetchStudentError("User not logged in.");
-        setFetchStudentLoading(false);
-        return;
+    if (!userUid) { 
+      setFetchStudentError("User not logged in.");
+      setFetchStudentLoading(false);
+      return;
+    }
+    if (!studentId) {
+      setFetchStudentError("Student ID missing from URL.");
+      setFetchStudentLoading(false);
+      return;
+    }
+
+    try {
+      const currentUserDocRef = doc(db, 'users', userUid);
+      const currentUserDocSnap = await getDoc(currentUserDocRef);
+      if (!currentUserDocSnap.exists() || currentUserDocSnap.data().role !== 'teacher') {
+          setFetchStudentError("Access Denied: Not a valid Teacher account or user data not found.");
+          navigate('/teacher-dashboard');
+          return;
       }
-      if (!studentId) { 
-        setFetchStudentError("Student ID missing from URL.");
-        setFetchStudentLoading(false);
-        return;
+      const teacherSchoolId = currentUserDocSnap.data().schoolId;
+      if (!teacherSchoolId) {
+          setFetchStudentError("Teacher account has no assigned school.");
+          navigate('/teacher-dashboard');
+          return;
       }
 
-      try {
-        const currentUserDocRef = doc(db, 'users', userUid);
-        const currentUserDocSnap = await getDoc(currentUserDocRef);
-        // Verify user exists and is a teacher
-        if (!currentUserDocSnap.exists() || currentUserDocSnap.data().role !== 'teacher') {
-            setFetchStudentError("Access Denied: Not a valid Teacher account or user data not found.");
-            navigate('/teacher-dashboard'); // Redirect back if not a teacher
-            return;
-        }
-        const teacherSchoolId = currentUserDocSnap.data().schoolId; // Get the teacher's assigned schoolId
-        if (!teacherSchoolId) { // Check if teacher has an assigned school
-            setFetchStudentError("Teacher account has no assigned school.");
-            navigate('/teacher-dashboard'); // Redirect if no school assigned
-            return;
-        }
+      const studentDocRef = doc(db, 'students', studentId);
+      const studentDocSnap = await getDoc(studentDocRef);
 
-        const studentDocRef = doc(db, 'students', studentId);
-        const studentDocSnap = await getDoc(studentDocRef);
+      if (studentDocSnap.exists()) {
+        const student = { id: studentDocSnap.id, ...studentDocSnap.data() };
 
-        if (studentDocSnap.exists()) {
-          const student = { id: studentDocSnap.id, ...studentDocSnap.data() };
-
-          if (student.schoolId !== teacherSchoolId) { // Security Check: Student belongs to teacher's school
-            setFetchStudentError("Access Denied: Student does not belong to your school.");
-            navigate('/teacher-dashboard'); // Redirect back if unauthorized access to student
-            return;
-          }
-          setStudentData(student); // Set student data if all checks pass
-          initializePointSheet(); // Initialize point sheet data when student data loads
-          // calculateDailyPoints will be triggered by initializePointSheet's call
-        } else {
-          setFetchStudentError("Student not found."); // Student ID in URL but document doesn't exist
+        if (student.schoolId !== teacherSchoolId) {
+          setFetchStudentError("Access Denied: Student does not belong to your school.");
+          navigate('/teacher-dashboard');
+          return;
         }
-      } catch (error) {
-        console.error("StudentDetailPage: Error fetching student details:", error.message);
-        setFetchStudentError("Failed to load student data: " + error.message);
-      } finally {
-        setFetchStudentLoading(false); // End loading, regardless of success/failure
+        setStudentData(student);
+        initializePointSheet(); // Initialize point sheet data when student data loads
+        calculateDailyPoints(pointSheetData, isAbsent); // Initial calculation on load
+      } else {
+        setFetchStudentError("Student not found."); 
       }
-    };
-
-    fetchStudentDetails();
-  }, [studentId, userUid, db, navigate]); // Dependencies: re-run if these values change
-
+    } catch (error) {
+      console.error("StudentDetailPage: Error fetching student details:", error.message);
+      setFetchStudentError("Failed to load student data: " + error.message);
+    } finally {
+      setFetchStudentLoading(false);
+    }
+  };
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
       console.log("Teacher logged out.");
-      navigate('/'); // Navigate to login page after logout
+      navigate('/');
     } catch (error) {
       console.error("Error logging out:", error.message);
       alert("Error logging out: " + error.message);
@@ -217,48 +198,43 @@ function StudentDetailPage() {
   };
 
   const handleBackToStudents = () => {
-    navigate('/teacher-dashboard'); // Navigate back to the teacher dashboard
+    navigate('/teacher-dashboard');
   };
 
 
   // --- Handle Point Sheet Submission ---
-  // This function prepares and sends the daily point sheet data to a Cloud Function
   const handleSubmitPointSheet = async (e) => {
-    e.preventDefault(); // Prevent default form submission to handle via JavaScript
-    setSubmitLoading(true); // Activate loading state for the button
-    setSubmitError(null);   // Clear previous errors
-    setSubmitSuccess(null); // Clear previous success messages
+    e.preventDefault();
+    setSubmitLoading(true);
+    setSubmitError(null);
+    setSubmitSuccess(null);
 
-    // Basic validation: Ensure student data is loaded before submission
     if (!studentData || !studentData.id) {
       setSubmitError("Student data not loaded. Cannot submit.");
       setSubmitLoading(false);
       return;
     }
 
-    // Prepare the report data object to be sent to the Cloud Function
+    // Prepare data for Cloud Function payload
     const reportData = {
-      studentId: studentData.id,
+      studentId: studentData.id, 
       schoolId: studentData.schoolId,
-      date: new Date(), // Current date of report submission
-      teacherUid: userUid, // UID of the teacher submitting the report
-      teacherEmail: userEmail, // Email of the teacher submitting
-      periodScores: pointSheetData, // The detailed scores for each period
-      isAbsent: isAbsent, // Was student absent today?
-      totalEarnedPoints: dailyTotalPoints, // Calculated total points earned
-      totalPossiblePoints: dailyPossiblePoints, // Calculated total possible points
-      dailyPercentage: dailyPercentage, // Calculated daily percentage
-      isSuccessfulDay: isDaySuccessful(dailyPercentage, studentData.currentLevel), // Calculated success based on percentage and level
-      levelAtTimeOfReport: studentData.currentLevel // Student's level when this report was submitted
+      date: new Date(),
+      teacherUid: userUid,
+      teacherEmail: userEmail,
+      periodScores: pointSheetData,
+      isAbsent: isAbsent,
+      totalEarnedPoints: dailyTotalPoints,
+      totalPossiblePoints: dailyPossiblePoints,
+      dailyPercentage: dailyPercentage,
+      isSuccessfulDay: isDaySuccessful(dailyPercentage, studentData.currentLevel),
+      levelAtTimeOfReport: studentData.currentLevel
     };
 
     try {
-      // Call the 'processDailyPointSheet' Cloud Function
-      const processDailyPointSheet = httpsCallable(functions, 'processDailyPointSheet'); 
-      // Get the current user's ID token for authentication in the Cloud Function
+      const processDailyPointSheet = httpsCallable(functions, 'processDailyPointSheet');
       const idToken = await auth.currentUser.getIdToken(true); 
 
-      // Execute the Cloud Function with the report data and ID token
       const result = await processDailyPointSheet({
         idToken: idToken,
         reportData: reportData
@@ -266,33 +242,35 @@ function StudentDetailPage() {
 
       console.log("StudentDetailPage: Point sheet submission result:", result.data);
       setSubmitSuccess("Point sheet submitted! " + result.data.message);
-      // After successful submission, re-initialize point sheet for next day's entry
       initializePointSheet(); 
-      setIsAbsent(false); // Reset absent status
-      // Re-fetch student details to update level/days if progression occurred
+      setIsAbsent(false); 
       fetchStudentDetails(); 
-
+      
     } catch (error) {
       console.error("StudentDetailPage: Error submitting point sheet:", error);
-      // Display a user-friendly error message
       setSubmitError("Failed to submit point sheet: " + (error.message || "An unknown error occurred."));
     } finally {
-      setSubmitLoading(false); // Deactivate loading state
+      setSubmitLoading(false);
     }
   };
 
 
-  // --- Component Render (JSX) ---
+  // --- useEffect to run initial data fetch (calls fetchStudentDetails) ---
+  useEffect(() => {
+    fetchStudentDetails(); // Call fetchStudentDetails on component mount
+  }, [studentId, userUid, db, navigate]); // Dependencies: ensure stable references
+
+
   return (
     <div className="dashboard-container">
       <div className="dashboard-card student-detail-card">
         <h2>Student Profile</h2>
-
-        {fetchStudentLoading ? ( // Show loading message while fetching student data
+        
+        {fetchStudentLoading ? (
           <p>Loading student details...</p>
-        ) : fetchStudentError ? ( // Show error message if fetching failed
+        ) : fetchStudentError ? (
           <p className="error-message">{fetchStudentError}</p>
-        ) : studentData ? ( // If student data is successfully loaded, render content
+        ) : studentData ? ( 
           <>
             <button onClick={handleBackToStudents} className="back-button">← Back to Students</button>
             <div className="student-info-section">
@@ -305,7 +283,7 @@ function StudentDetailPage() {
 
             <div className="point-sheet-section">
               <h3>Daily Point Sheet</h3>
-
+              
               {/* Absent Checkbox */}
               <div className="form-group">
                 <label htmlFor="isAbsentCheckbox">
@@ -326,7 +304,7 @@ function StudentDetailPage() {
                     <thead>
                       <tr>
                         <th>Period</th>
-                        {CATEGORIES.map(cat => <th key={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</th>)} {/* Capitalize categories for headers */}
+                        {CATEGORIES.map(cat => <th key={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</th>)}
                         <th>Notes</th>
                       </tr>
                     </thead>
@@ -337,7 +315,7 @@ function StudentDetailPage() {
                           {CATEGORIES.map(category => (
                             <td key={category}>
                               <select
-                                value={period[category]} // Bind value to state
+                                value={period[category]}
                                 onChange={(e) => handleScoreChange(index, category, e.target.value)}
                               >
                                 {RISE_OPTIONS.map(option => (
@@ -371,18 +349,18 @@ function StudentDetailPage() {
                       )}
                     </p>
                   </div>
-
+                  
                   {submitError && <p className="error-message">{submitError}</p>}
                   {submitSuccess && <p className="success-message">{submitSuccess}</p>}
                   <button type="submit" disabled={submitLoading}>
                     {submitLoading ? 'Submitting...' : 'Submit Daily Points'}
                   </button>
                 </form>
-              )} {/* End of !isAbsent conditional rendering */}
-
-            </div> {/* End of point-sheet-section */}
+              )}
+              
+            </div>
           </>
-        ) : null} {/* End of studentData ? (...) : null */}
+        ) : null}
 
         <button onClick={handleLogout} className="logout-button">Log Out</button>
       </div>

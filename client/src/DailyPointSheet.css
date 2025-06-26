@@ -1,0 +1,80 @@
+/* client/src/DailyPointSheet.css */
+
+.point-sheet-section table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.point-sheet-section th,
+.point-sheet-section td {
+  border: 1px solid #444;
+  padding: 8px;
+  text-align: center;
+  color: #ddd;
+}
+
+.point-sheet-section th {
+  background-color: #282c34;
+  color: #61dafb;
+  font-weight: bold;
+}
+
+.point-sheet-section tr:nth-child(even) {
+  background-color: #35383e; /* Slight stripe for readability */
+}
+
+.point-sheet-section select,
+.point-sheet-section input[type="text"] {
+  width: calc(100% - 10px); /* Adjust for padding */
+  padding: 5px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background-color: #444;
+  color: white;
+  font-size: 14px;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23bbb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 5px center;
+  background-size: 15px;
+}
+
+.point-sheet-section input[type="text"] {
+    background-image: none; /* No dropdown arrow for text input */
+}
+
+.point-sheet-section select:focus,
+.point-sheet-section input[type="text"]:focus {
+  outline: none;
+  border-color: #61dafb;
+  box-shadow: 0 0 0 2px rgba(97, 218, 251, 0.5);
+}
+
+.daily-summary {
+  background-color: #282c34;
+  padding: 15px;
+  border-radius: 6px;
+  margin-top: 20px;
+  text-align: center;
+  color: #eee;
+  font-size: 1.1em;
+}
+
+.daily-summary p {
+  margin-bottom: 5px;
+}
+
+.daily-summary strong {
+    color: #61dafb;
+}
+
+.daily-summary .error-message,
+.daily-summary .success-message {
+    font-size: 0.9em;
+    font-weight: normal;
+    margin-top: 10px;
+}
